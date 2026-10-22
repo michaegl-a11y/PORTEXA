@@ -336,7 +336,9 @@
   </main>
   <script>
     (async () => {
-      const status = document.getElementById('status');
+      const status = document.getElementById('status');const authSection = document.getElementById('auth-section');
+      const welcomeHeading = document.getElementById('welcome-heading');
+      const welcomeDescription = document.getElementById('welcome-description');
       const orders = document.getElementById('orders');
       const signedInAs = document.getElementById('signed-in-as');
       const signupButton = document.getElementById('signup');
@@ -400,7 +402,19 @@
           return;
         }
         const session = data.session;
+
+        authSection.hidden = !!session;
         logoutButton.hidden = !session;
+
+        if (session) {
+         welcomeHeading.textContent = 'Your account.';
+         welcomeDescription.textContent =
+           'Manage your account and view your order history.';
+        } else {
+         welcomeHeading.textContent = 'Welcome back.';
+         welcomeDescription.textContent =
+           'Sign in to view your orders, or create an account for easier access next time.';
+        }
         if (!session) {
           signedInAs.textContent = '';
           orders.replaceChildren();
