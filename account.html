@@ -519,7 +519,9 @@
           if (error) {
             showStatus(getFriendlyError(error), 'error');
           } else if (data.session) {
-            showStatus('You are signed in.', 'success');
+            showStatus('You are signed in. Taking you to the shop…', 'success');
+            window.location.href = '/shop.html';
+            return;
           } else {
             showStatus('No active session was returned. Please try signing in again.', 'error');
           }
