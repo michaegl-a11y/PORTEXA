@@ -1,1 +1,174 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#075b4b"><link rel="stylesheet" href="/assets/site.css"><title>Product details | Portexa</title><meta name="description" content="Portexa everyday care products. Built on trust, delivered with excellence."></head><body><div class="topline">Thoughtfully made everyday care · Delivery available across Nigeria</div><header><nav class="nav site-nav" aria-label="Main navigation"><a class="brand" href="/" aria-label="Portexa home"><img src="/components/logo.png" alt="Portexa" style="height:40px;width:auto;max-width:170px;object-fit:contain" onload="this.nextElementSibling.style.display='none';this.nextElementSibling.nextElementSibling.style.display='none'" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'"><span class="brand-mark" style="display:none">P</span><span>PORTEXA</span></a><div class="navlinks"><a href="/">Home</a><a href="/shop.html">Shop</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/account.html">Account</a><a href="/cart.html">Cart <span class="cart-badge" data-cart-count>0</span></a><a class="nav-cta" href="/shop.html">Shop products ↗</a></div></nav></header><main class="page-wrap"><div id="product-detail" class="about-inner" style="align-items:center"><p>Loading product…</p></div></main><script src="/assets/cart.js"></script><script>const products=window.PORTEXA_PRODUCTS;const id=new URLSearchParams(location.search).get('id');const p=products[id];const box=document.getElementById('product-detail');if(!p){box.innerHTML='<div><h1>Product not found</h1><a class="button" href="/shop.html">Back to shop</a></div>'}else{document.title=p.name+' | Portexa';box.innerHTML='<div class="product-visual" style="height:360px;min-height:260px;background:#f4f7f2;border-radius:20px"><img class="catalog-image" src="'+p.image+'" alt="'+p.alt+'" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="fallback-pack" style="display:none"><span>PORTEXA</span><strong>'+p.name+'</strong></div></div><div><div class="eyebrow">Portexa personal care</div><h1>'+p.name+'</h1><p>'+p.detail+'</p><h2>₦'+p.price.toLocaleString('en-NG')+'</h2><p>Delivery cost is confirmed separately before your order is finalised.</p><div class="page-actions"><button class="button" onclick="portexaCart.add(''+p.id+'');location.href='/cart.html'">Add to cart</button><a class="button secondary" href="/shop.html">Back to shop</a></div></div>'}</script><footer class="site-footer"><div class="footer-inner"><div><strong>PORTEXA</strong> · Built on trust, delivered with excellence.</div><div>© <span data-year></span> Portexa. All rights reserved.</div><div><a href="/contact.html">Email us</a> · <a href="https://wa.me/2349138176684" target="_blank" rel="noopener">WhatsApp</a></div></div></footer><script>document.querySelectorAll('[data-year]').forEach(e=>e.textContent=new Date().getFullYear());</script><script src="/assets/chat.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#075b4b">
+  <title>Product Details | Portexa</title>
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+
+<body>
+  <div class="topline">
+    Thoughtfully made everyday care · Delivery available across Nigeria
+  </div>
+
+  <header>
+    <nav class="nav site-nav" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Portexa home">
+        <img
+          src="/components/logo.png"
+          alt="Portexa"
+          style="height:40px;width:auto;max-width:170px;object-fit:contain"
+          onerror="this.style.display='none'"
+        >
+        <span>PORTEXA</span>
+      </a>
+
+      <div class="navlinks">
+        <a href="/">Home</a>
+        <a href="/shop.html">Shop</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/account.html">Account</a>
+        <a href="/cart.html">
+          Cart <span data-cart-count>0</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page-wrap">
+    <div id="product-detail" class="about-inner">
+      <p>Loading product details…</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>PORTEXA</strong> · Built on trust, delivered with excellence.
+      </div>
+      <div>
+        © <span data-year></span> Portexa. All rights reserved.
+      </div>
+      <div>
+        <a href="/contact.html">Contact us</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/cart.js"></script>
+
+  <script>
+    (function () {
+      const box = document.getElementById('product-detail');
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+
+      const products = window.PORTEXA_PRODUCTS || {};
+      const product = id ? products[id] : null;
+
+      document.querySelectorAll('[data-year]').forEach(function (el) {
+        el.textContent = new Date().getFullYear();
+      });
+
+      if (!product) {
+        box.innerHTML = '';
+
+        const message = document.createElement('div');
+        const heading = document.createElement('h1');
+        const description = document.createElement('p');
+        const link = document.createElement('a');
+
+        heading.textContent = 'Product not found';
+        description.textContent =
+          'This product could not be loaded. Please return to the shop and select it again.';
+
+        link.href = '/shop.html';
+        link.className = 'button';
+        link.textContent = 'Back to shop';
+
+        message.append(heading, description, link);
+        box.appendChild(message);
+        return;
+      }
+
+      document.title = product.name + ' | Portexa';
+
+      const visual = document.createElement('div');
+      visual.className = 'product-visual';
+      visual.style.cssText =
+        'background:#f4f7f2;border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:center;min-height:300px';
+
+      const image = document.createElement('img');
+      image.className = 'catalog-image';
+      image.src = product.image;
+      image.alt = product.alt;
+      image.style.cssText =
+        'width:100%;max-width:420px;max-height:420px;object-fit:contain';
+
+      const imageFallback = document.createElement('p');
+      imageFallback.textContent = product.name;
+      imageFallback.style.display = 'none';
+
+      image.onerror = function () {
+        image.style.display = 'none';
+        imageFallback.style.display = 'block';
+      };
+
+      visual.append(image, imageFallback);
+
+      const details = document.createElement('div');
+
+      const eyebrow = document.createElement('div');
+      eyebrow.className = 'eyebrow';
+      eyebrow.textContent = 'Portexa personal care';
+
+      const heading = document.createElement('h1');
+      heading.textContent = product.name;
+
+      const description = document.createElement('p');
+      description.textContent = product.detail;
+
+      const price = document.createElement('h2');
+      price.textContent = '₦' + product.price.toLocaleString('en-NG');
+
+      const delivery = document.createElement('p');
+      delivery.textContent =
+        'Delivery charges will be confirmed before your order is finalised.';
+
+      const actions = document.createElement('div');
+      actions.className = 'page-actions';
+
+      const addButton = document.createElement('button');
+      addButton.type = 'button';
+      addButton.className = 'button';
+      addButton.textContent = 'Add to cart';
+
+      addButton.addEventListener('click', function () {
+        if (!window.portexaCart) {
+          alert('The cart could not load. Please refresh and try again.');
+          return;
+        }
+
+        window.portexaCart.add(product.id);
+        window.location.href = '/cart.html';
+      });
+
+      const backLink = document.createElement('a');
+      backLink.href = '/shop.html';
+      backLink.className = 'button secondary';
+      backLink.textContent = 'Back to shop';
+
+      actions.append(addButton, backLink);
+      details.append(eyebrow, heading, description, price, delivery, actions);
+
+      box.innerHTML = '';
+      box.append(visual, details);
+    })();
+  </script>
+
+  <script src="/assets/chat.js"></script>
+</body>
+</html>
