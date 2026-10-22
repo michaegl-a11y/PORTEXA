@@ -178,3 +178,110 @@
 /* Multi-page Portexa storefront additions */
 .page-wrap{max-width:1160px;margin:0 auto;padding:48px 24px 72px}.page-intro{max-width:760px;margin-bottom:30px}.page-intro h1{font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.1;margin:8px 0 14px}.page-intro p{color:var(--muted);font-size:1.05rem}.site-nav .navlinks{flex-wrap:wrap}.site-nav .navlinks a{white-space:nowrap}.products .product{overflow:hidden}.catalog-image{width:100%;height:100%;object-fit:contain;display:block}.product-visual{display:flex;align-items:center;justify-content:center;overflow:hidden}.product-visual img{width:100%;height:100%;object-fit:contain}.product-card-link{display:block}.product-card-link:hover h3{color:var(--plum)}.product-visual .fallback-pack{width:64%;height:84%;border-radius:18px;background:#fff;box-shadow:0 10px 30px #0002;display:flex;align-items:center;justify-content:center;flex-direction:column;border:1px solid #e4e8e3;font-weight:800;color:#174c3d}.fallback-pack span{font-size:.8rem;letter-spacing:.1em}.fallback-pack strong{font-size:1.1rem;margin-top:12px}.cart-list{display:grid;gap:14px}.cart-row{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}.cart-row img{width:78px;height:78px;object-fit:contain;border-radius:12px;background:#f6f6f2}.cart-row-main{display:flex;align-items:center;gap:14px;min-width:0}.cart-row-main div{min-width:0}.qty-controls{display:flex;align-items:center;gap:10px}.qty-controls button{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:50%;cursor:pointer}.form-card{max-width:720px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-weight:700;font-size:.92rem}.field input,.field textarea,.field select{width:100%;padding:12px 13px;border:1px solid #cbd8d0;border-radius:10px;background:#fff;font:inherit}.field textarea{min-height:130px;resize:vertical}.notice{padding:12px 14px;border-radius:10px;background:#edf5ef;color:#244b3c;margin:12px 0}.notice.error{background:#fff0ee;color:#8b2922}.page-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}.cart-summary{background:#f7f8f4;border-radius:14px;padding:18px;margin:18px 0}.site-footer{border-top:1px solid var(--line);padding:25px 24px;color:var(--muted)}.site-footer .footer-inner{max-width:1160px;margin:auto;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}.chat-launcher{position:fixed;right:18px;bottom:18px;z-index:9998}.chat-panel{display:none;position:fixed;right:16px;bottom:78px;width:min(360px,calc(100vw - 32px));height:470px;max-height:70vh;background:white;border:1px solid #ddd;border-radius:16px;box-shadow:0 12px 38px #0003;z-index:9999;overflow:hidden;flex-direction:column}.chat-panel header{padding:14px;background:#153f35;color:white;display:flex;justify-content:space-between;align-items:center}.chat-panel input,.chat-panel textarea{box-sizing:border-box;width:100%;padding:9px;margin-bottom:6px;border:1px solid #ddd;border-radius:7px;font:inherit}.chat-panel button.close{background:transparent;border:0;color:white;font-size:22px}.chat-messages{padding:12px;overflow:auto;flex:1;font-size:14px}
 @media(max-width:700px){.page-wrap{padding:34px 18px 56px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.site-nav{align-items:flex-start;flex-direction:column}.site-nav .navlinks{gap:10px 14px;display:flex;flex-wrap:wrap}.site-nav .navlinks a:not(.nav-cta){display:inline-flex}.cart-row{align-items:flex-start;flex-wrap:wrap}.cart-row .qty-controls{margin-left:auto}}
+/* =========================================
+   PORTEXA UI REFINEMENTS
+   ========================================= */
+
+/* Hide the cart quantity badge in navigation */
+.site-nav [data-cart-count],
+.site-nav .cart-badge {
+  display: none !important;
+}
+
+/* Cleaner navigation */
+.site-nav {
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.site-nav a {
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.site-nav a:hover {
+  opacity: 0.75;
+}
+
+/* Refined product cards */
+.product-card {
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Consistent product image presentation */
+.product-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Refined buttons */
+button,
+.btn,
+.button,
+a.btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+button:hover,
+.btn:hover,
+.button:hover,
+a.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Cleaner form fields */
+input,
+select,
+textarea {
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #16806a;
+  box-shadow: 0 0 0 3px rgba(22, 128, 106, 0.12);
+}
+
+/* Mobile navigation spacing */
+@media (max-width: 640px) {
+  .site-nav {
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
