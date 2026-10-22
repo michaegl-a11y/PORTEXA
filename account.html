@@ -1,36 +1,560 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portexa | Customer Account</title>
-<style>
-body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7f4;color:#183e35;margin:0;padding:24px}.wrap{max-width:760px;margin:auto}.card{background:#fff;padding:22px;border-radius:16px;margin:16px 0;box-shadow:0 4px 20px #0000000b}input,button{font:inherit;padding:12px;border-radius:8px}input{width:100%;box-sizing:border-box;border:1px solid #cfd8d2;margin:6px 0 12px}button{border:0;background:#17483b;color:#fff;cursor:pointer;margin:4px 6px 4px 0}button.secondary{background:#e7eee9;color:#183e35}small,#status{color:#626e67}.order{border-top:1px solid #e4e9e5;padding:12px 0;overflow-wrap:anywhere}a{color:#17483b}
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><div class="wrap"><a href="/">← Back to Portexa</a><h1>Customer account</h1><p>Sign in to view your Portexa orders, or create an account for future orders.</p>
-<div class="card"><label>Full name (for new account)<input id="name" autocomplete="name"></label><label>Email<input id="email" type="email" autocomplete="email" required></label><label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label><button id="signup">Create account</button><button id="login" class="secondary">Sign in</button><button id="logout" class="secondary" style="display:none">Sign out</button><p id="status" role="status"></p></div>
-<div class="card"><h2>Your orders</h2><div id="orders">Sign in to view your orders.</div></div></div>
-<script>
-(async()=>{
- const status=document.getElementById('status'), orders=document.getElementById('orders');
- const cfg=await fetch('/api/config').then(r=>r.json());
- if(!cfg.supabaseUrl||!cfg.supabaseAnonKey){status.textContent='Account service is not configured yet. Please try again later.';return;}
- const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
- const token=async()=> (await sb.auth.getSession()).data.session?.access_token||'';
- async function refresh(){
-  const {data}=await sb.auth.getSession(); const session=data.session;
-  document.getElementById('logout').style.display=session?'inline-block':'none';
-  if(!session){orders.textContent='Sign in to view your orders.';return;}
-  const res=await fetch('/api/customer/orders',{headers:{Authorization:'Bearer '+session.access_token}});
-  const payload=await res.json();
-  if(!res.ok){orders.textContent=payload.error||'Could not load orders.';return;}
-  orders.innerHTML=payload.orders.length?payload.orders.map(o=>`<div class="order"><strong>Order ${o.id.slice(0,8)}</strong><p>${new Date(o.created_at).toLocaleString()} · ₦${Number(o.subtotal).toLocaleString('en-NG')}</p><p>Status: ${o.status} · Payment: ${o.payment_status||'unpaid'}</p><p>${(o.items||[]).map(i=>`${i.name} × ${i.quantity}`).join(', ')}</p></div>`).join(''):'No orders yet.';
- }
- document.getElementById('signup').onclick=async()=>{
-  status.textContent='Creating account…';
-  const {error}=await sb.auth.signUp({email:document.getElementById('email').value,password:document.getElementById('password').value,options:{data:{full_name:document.getElementById('name').value}}});
-  status.textContent=error?error.message:'Account request sent. If email confirmation is enabled, check your inbox to confirm before signing in.'; await refresh();
- };
- document.getElementById('login').onclick=async()=>{
-  status.textContent='Signing in…';
-  const {error}=await sb.auth.signInWithPassword({email:document.getElementById('email').value,password:document.getElementById('password').value});
-  status.textContent=error?error.message:'Signed in.'; await refresh();
- };
- document.getElementById('logout').onclick=async()=>{await sb.auth.signOut();status.textContent='Signed out.';await refresh();};
- sb.auth.onAuthStateChange(()=>setTimeout(refresh,0)); await refresh();
-})();
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17483b">
+  <title>My Account | Portexa</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --green: #17483b;
+      --green-dark: #10372d;
+      --green-light: #eaf2ed;
+      --background: #f7f8f5;
+      --text: #23352e;
+      --muted: #6b776f;
+      --border: #e1e7e1;
+      --white: #ffffff;
+      --danger: #a52e35;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      line-height: 1.6;
+    }
+    a {
+      color: var(--green);
+    }
+    .topbar {
+      padding: 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 960px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .back-link {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .container {
+      max-width: 680px;
+      margin: 42px auto;
+      padding: 0 18px 40px;
+    }
+    .intro {
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 6px 0;
+      font-size: clamp(28px, 6vw, 38px);
+      line-height: 1.2;
+      letter-spacing: -1px;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+    .intro p,
+    .muted {
+      color: var(--muted);
+    }
+    .card {
+      padding: 26px;
+      margin-bottom: 20px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(20, 50, 35, 0.035);
+    }
+    .field {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 650;
+    }
+    input {
+      display: block;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid #d5ded6;
+      border-radius: 10px;
+      background: var(--white);
+      color: var(--text);
+      font: inherit;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 72, 59, 0.11);
+    }
+    .password-wrap {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .password-wrap input {
+      flex: 1;
+      min-width: 0;
+    }
+    .show-password {
+      flex-shrink: 0;
+      min-width: 72px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #f4f6f3;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 22px;
+    }
+    button {
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary,
+    .secondary,
+    .signout {
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      transition: background 0.2s ease;
+    }
+    .primary {
+      border: 1px solid var(--green);
+      background: var(--green);
+      color: var(--white);
+    }
+    .primary:hover {
+      background: var(--green-dark);
+    }
+    .secondary {
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--green);
+    }
+    .secondary:hover {
+      background: var(--green-light);
+    }
+    .signout {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--danger);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    #status {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f4f6f3;
+      color: var(--muted);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+    #status:empty {
+      display: none;
+    }
+    #status.error {
+      background: #fff0f0;
+      color: var(--danger);
+    }
+    #status.success {
+      background: var(--green-light);
+      color: var(--green);
+    }
+    .account-state {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .account-state p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+    .order {
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+      overflow-wrap: anywhere;
+    }
+    .order p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+    .empty-state {
+      padding: 16px;
+      border-radius: 12px;
+      background: #f7f8f5;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 520px) {
+      .container {
+        margin-top: 28px;
+      }
+      .card {
+        padding: 20px;
+      }
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+      .topbar {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">PORTEXA</a>
+      <a class="back-link" href="/shop.html">Continue shopping →</a>
+    </div>
+  </header>
+  <main class="container">
+    <section class="intro">
+      <div class="eyebrow">Your Portexa account</div>
+      <h1>Welcome back.</h1>
+      <p>Sign in to view your orders, or create an account for easier access next time.</p>
+    </section>
+    <section class="card" aria-labelledby="account-heading">
+      <h2 id="account-heading">Sign in or create an account</h2>
+      <form id="account-form">
+        <div class="field">
+          <label for="name">Full name <span class="muted">(for new accounts)</span></label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            placeholder="Your full name"
+          >
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          >
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              minlength="8"
+              placeholder="Enter your password"
+              required
+            >
+            <button
+              class="show-password"
+              id="toggle-password"
+              type="button"
+              aria-controls="password"
+              aria-pressed="false"
+            >Show</button>
+          </div>
+        </div>
+        <div class="buttons">
+          <button class="primary" id="signup" type="button">
+            Create account
+          </button>
+          <button class="secondary" id="login" type="button">
+            Sign in
+          </button>
+        </div>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+    <section class="card" aria-labelledby="orders-heading">
+      <div class="account-state">
+        <div>
+          <h2 id="orders-heading">Your orders</h2>
+          <p id="signed-in-as">Sign in to view your order history.</p>
+        </div>
+        <button
+          class="signout"
+          id="logout"
+          type="button"
+          hidden
+        >Sign out</button>
+      </div>
+      <div id="orders" class="empty-state">
+        Your orders will appear here after you sign in.
+      </div>
+    </section>
+  </main>
+  <script>
+    (async () => {
+      const status = document.getElementById('status');
+      const orders = document.getElementById('orders');
+      const signedInAs = document.getElementById('signed-in-as');
+      const signupButton = document.getElementById('signup');
+      const loginButton = document.getElementById('login');
+      const logoutButton = document.getElementById('logout');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const nameInput = document.getElementById('name');
+      const togglePassword = document.getElementById('toggle-password');
+      function showStatus(message, type = '') {
+        status.textContent = message;
+        status.className = type;
+      }
+      function setBusy(busy) {
+        signupButton.disabled = busy;
+        loginButton.disabled = busy;
+      }
+      togglePassword.addEventListener('click', () => {
+        const showing = passwordInput.type === 'password';
+        passwordInput.type = showing ? 'text' : 'password';
+        togglePassword.textContent = showing ? 'Hide' : 'Show';
+        togglePassword.setAttribute('aria-pressed', String(showing));
+      });
+      let cfg;
+      try {
+        const response = await fetch('/api/config', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Configuration request failed.');
+        cfg = await response.json();
+      } catch {
+        showStatus('We could not load the account service. Please try again later.', 'error');
+        setBusy(true);
+        return;
+      }
+      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+        showStatus('The account service is not configured yet. Please try again later.', 'error');
+        setBusy(true);
+        return;
+      }
+      const sb = window.supabase.createClient(
+        cfg.supabaseUrl,
+        cfg.supabaseAnonKey
+      );
+      function getFriendlyError(error) {
+        const message = error?.message || 'Something went wrong. Please try again.';
+        if (/email not confirmed/i.test(message)) {
+          return 'Please confirm your email using the link we sent you before signing in.';
+        }
+        if (/invalid login credentials/i.test(message)) {
+          return 'The email or password is incorrect. Check both and try again.';
+        }
+        if (/user already registered/i.test(message)) {
+          return 'An account may already exist for this email. Try signing in or check your inbox for a confirmation email.';
+        }
+        return message;
+      }
+      async function refreshOrders() {
+        const { data, error } = await sb.auth.getSession();
+        if (error) {
+          signedInAs.textContent = 'Could not check your sign-in status.';
+          orders.textContent = 'Please refresh the page and try again.';
+          return;
+        }
+        const session = data.session;
+        logoutButton.hidden = !session;
+        if (!session) {
+          signedInAs.textContent = 'Sign in to view your order history.';
+          orders.textContent = 'Your orders will appear here after you sign in.';
+          return;
+        }
+        signedInAs.textContent = 'Signed in as ' + session.user.email;
+        orders.textContent = 'Loading your orders…';
+        try {
+          const response = await fetch('/api/customer/orders', {
+            headers: {
+              Authorization: 'Bearer ' + session.access_token
+            },
+            cache: 'no-store'
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            orders.textContent =
+              payload.error ||
+              'Your account is signed in, but the order service returned an error (' +
+              response.status + ').';
+            return;
+          }
+          const list = Array.isArray(payload.orders) ? payload.orders : [];
+          if (!list.length) {
+            orders.textContent = 'No orders found for this account yet.';
+            return;
+          }
+          orders.className = '';
+          const fragment = document.createDocumentFragment();
+          list.forEach(order => {
+            const item = document.createElement('div');
+            item.className = 'order';
+            const heading = document.createElement('strong');
+            heading.textContent = 'Order ' + String(order.id || '').slice(0, 8);
+            item.appendChild(heading);
+            const date = document.createElement('p');
+            const parsedDate = new Date(order.created_at);
+            date.textContent =
+              (Number.isNaN(parsedDate.getTime()) ? '' : parsedDate.toLocaleString()) +
+              ' · ₦' + Number(order.subtotal || 0).toLocaleString('en-NG');
+            item.appendChild(date);
+            const state = document.createElement('p');
+            state.textContent =
+              'Status: ' + (order.status || 'unknown') +
+              ' · Payment: ' + (order.payment_status || 'unpaid');
+            item.appendChild(state);
+            const products = document.createElement('p');
+            products.textContent = (Array.isArray(order.items) ? order.items : [])
+              .map(product => (product.name || 'Product') + ' × ' + (product.quantity || 0))
+              .join(', ');
+            item.appendChild(products);
+            fragment.appendChild(item);
+          });
+          orders.replaceChildren(fragment);
+        } catch {
+          orders.textContent =
+            'You are signed in, but we could not reach the order service. Please try again later.';
+        }
+      }
+      signupButton.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const fullName = nameInput.value.trim();
+        if (!email || !password) {
+          showStatus('Enter your email address and password.', 'error');
+          return;
+        }
+        if (password.length < 8) {
+          showStatus('Your password must be at least 8 characters long.', 'error');
+          return;
+        }
+        setBusy(true);
+        showStatus('Creating your account…');
+        try {
+          const { data, error } = await sb.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { full_name: fullName },
+              emailRedirectTo: window.location.origin + '/account.html'
+            }
+          });
+          if (error) {
+            showStatus(getFriendlyError(error), 'error');
+          } else if (data.session) {
+            showStatus('Your account is created and you are signed in.', 'success');
+          } else {
+            showStatus(
+              'Registration request accepted. If email confirmation is enabled, check your inbox and open the confirmation link before signing in.',
+              'success'
+            );
+          }
+          await refreshOrders();
+        } catch {
+          showStatus('We could not complete registration. Please try again.', 'error');
+        } finally {
+          setBusy(false);
+        }
+      });
+      loginButton.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        if (!email || !password) {
+          showStatus('Enter your email address and password.', 'error');
+          return;
+        }
+        setBusy(true);
+        showStatus('Signing in…');
+        try {
+          const { data, error } = await sb.auth.signInWithPassword({
+            email,
+            password
+          });
+          if (error) {
+            showStatus(getFriendlyError(error), 'error');
+          } else if (data.session) {
+            showStatus('You are signed in.', 'success');
+          } else {
+            showStatus('No active session was returned. Please try signing in again.', 'error');
+          }
+          await refreshOrders();
+        } catch {
+          showStatus('We could not complete sign-in. Please try again.', 'error');
+        } finally {
+          setBusy(false);
+        }
+      });
+      logoutButton.addEventListener('click', async () => {
+        logoutButton.disabled = true;
+        try {
+          const { error } = await sb.auth.signOut();
+          if (error) {
+            showStatus(getFriendlyError(error), 'error');
+          } else {
+            showStatus('You have signed out.', 'success');
+          }
+          await refreshOrders();
+        } catch {
+          showStatus('We could not complete sign-out. Please try again.', 'error');
+        } finally {
+          logoutButton.disabled = false;
+        }
+      });
+      // Supabase email confirmation links can return authentication tokens
+      // in the URL fragment. Allow the SDK to process them, then clean the URL.
+      sb.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setTimeout(refreshOrders, 0);
+        }
+      });
+      await refreshOrders();
+    })();
+  </script>
+</body>
+</html>
