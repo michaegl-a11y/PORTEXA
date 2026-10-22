@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Shop Portexa essentials and source home products. Built on trust, delivered with excellence.">
+  <title>Portexa | Everyday Essentials, Sourced Better</title>
+  <style>
+    :root {
+      --ink: #173b35;
+      --muted: #687a75;
+      --plum: #075b4b;
+      --plum-dark: #064638;
+      --rose: #f4f7f2;
+      --blush: #f3f7f3;
+      --lavender: #e6f0eb;
+      --line: #dce7e1;
+      --white: #ffffff;
+      --gold: #f2c500;
+      --green: #075b4b;
+      --shadow: 0 14px 38px rgba(6, 70, 56, .10);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    .topline { background: var(--plum-dark); color: white; text-align: center; padding: 9px 16px; font-size: .82rem; letter-spacing: .04em; }
+    header { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav { max-width: 1160px; margin: auto; padding: 15px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 850; letter-spacing: .11em; font-size: 1.35rem; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: var(--plum); color: var(--gold); font-size: 1.1rem; letter-spacing: 0; }
+    .navlinks { display: flex; align-items: center; gap: 27px; font-size: .94rem; color: #405c54; }
+    .navlinks a:hover { color: var(--plum); }
+    .nav-cta, .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; background: var(--plum); color: white; border: 0; border-radius: 999px; padding: 12px 20px; font-weight: 750; cursor: pointer; transition: .2s ease; }
+    .nav-cta:hover, .button:hover { background: var(--plum-dark); transform: translateY(-1px); }
+    .button.secondary { background: white; color: var(--plum); border: 1px solid #d3e2d9; }
+    .button.secondary:hover { background: var(--lavender); }
+    .hero { overflow: hidden; background: linear-gradient(118deg, #f6f9f5 0%, #e9f2ec 58%, #dcebe2 100%); }
+    .hero-inner { max-width: 1160px; margin: auto; padding: 76px 24px 72px; display: grid; grid-template-columns: 1.06fr .94fr; align-items: center; gap: 45px; }
+    .eyebrow { color: var(--plum); font-size: .77rem; font-weight: 850; text-transform: uppercase; letter-spacing: .16em; }
+    h1 { font-size: clamp(2.7rem, 5.4vw, 4.8rem); line-height: 1.04; letter-spacing: -.055em; margin: 17px 0 20px; max-width: 640px; }
+    h1 em { font-style: normal; color: var(--plum); text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 5px; text-underline-offset: 7px; }
+    .hero-copy { max-width: 530px; font-size: 1.08rem; color: #687a75; margin: 0 0 27px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .trust-note { display: flex; align-items: center; gap: 9px; color: #655d6b; margin-top: 24px; font-size: .88rem; }
+    .trust-icon { display: inline-grid; place-items: center; width: 25px; height: 25px; background: white; color: var(--plum); border-radius: 50%; font-weight: 900; }
+    .hero-art { position: relative; min-height: 390px; display: grid; place-items: center; }
+    .halo { position: absolute; width: min(390px, 90%); aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.55); border: 1px solid rgba(6,70,56,.14); }
+    .display-card { position: relative; width: min(320px, 84%); background: white; border: 1px solid rgba(6,70,56,.14); border-radius: 28px; padding: 28px; box-shadow: 0 25px 65px rgba(6,70,56,.15); transform: rotate(-3deg); text-align: center; }
+    .display-label { font-size: .7rem; letter-spacing: .18em; font-weight: 850; color: var(--plum); }
+    .pad-illustration { height: 205px; display: grid; place-items: center; position: relative; }
+    .pad-shape { width: 103px; height: 174px; background: linear-gradient(145deg, #fff, #f8edf5); border: 2px solid #e4d6e7; border-radius: 49% 49% 43% 43% / 23% 23% 34% 34%; transform: rotate(12deg); box-shadow: inset 0 0 0 8px rgba(255,255,255,.8), 0 12px 25px rgba(6,70,56,.1); position: relative; }
+    .pad-shape:before { content: ""; position: absolute; width: 45px; height: 115px; top: 26px; left: 27px; border-radius: 50%; background: linear-gradient(#f9e8f0, #fff8fb); border: 1px solid #f0dce9; }
+    .sparkle { position: absolute; color: var(--plum); font-size: 1.5rem; }
+    .sparkle.one { top: 35px; right: 34px; }
+    .sparkle.two { bottom: 44px; left: 29px; font-size: 1.1rem; }
+    .display-card p { margin: 0; color: var(--muted); font-size: .86rem; }
+    .floating-pill { position: absolute; background: white; border: 1px solid var(--line); border-radius: 999px; padding: 12px 15px; box-shadow: var(--shadow); font-size: .82rem; font-weight: 750; }
+    .pill-one { top: 38px; left: 0; transform: rotate(-5deg); }
+    .pill-two { bottom: 36px; right: 0; transform: rotate(4deg); }
+    .benefits { border-bottom: 1px solid var(--line); }
+    .benefits-inner { max-width: 1160px; margin: auto; padding: 22px 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .benefit { display: flex; align-items: center; justify-content: center; gap: 11px; color: #5d5663; font-size: .9rem; font-weight: 650; }
+    .benefit span { display: grid; place-items: center; width: 34px; height: 34px; background: var(--blush); border-radius: 50%; color: var(--plum); }
+    section { scroll-margin-top: 88px; }
+    .section { max-width: 1160px; margin: auto; padding: 78px 24px; }
+    .section-heading { text-align: center; max-width: 650px; margin: 0 auto 35px; }
+    .section-heading h2 { margin: 10px 0 10px; font-size: clamp(2rem, 3.6vw, 3rem); letter-spacing: -.04em; line-height: 1.1; }
+    .section-heading p { margin: 0; color: var(--muted); }
+    .products { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+    .cart-panel { max-width: 1160px; margin: 0 auto 30px; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: #f7faf7; }
+    .cart-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .cart-head h3 { margin:0; font-size:1.25rem; }
+    .cart-items { margin:14px 0; display:grid; gap:9px; }
+    .cart-row { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); }
+    .qty-controls { display:flex; align-items:center; gap:9px; }
+    .qty-controls button { border:1px solid var(--line); background:white; border-radius:8px; width:30px; height:30px; cursor:pointer; }
+    .cart-total { display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:850; font-size:1.1rem; }
+    .quote-note { color:var(--muted); font-size:.85rem; margin:8px 0 14px; }
+    .add-btn { margin-top: auto; }
+    .product-photo img { object-fit:cover; }
+    .catalog-image { width:100%; height:100%; object-fit:cover; display:block; position:relative; z-index:1; }
+    .product-visual:has(.catalog-image):before { display:none; }
+    @media(max-width:900px){ .cart-panel { margin:0 18px 28px; } }
+    .product { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: white; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column; }
+    .product:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .product-visual { height: 190px; display: grid; place-items: center; position: relative; overflow: hidden; }
+    .product-visual:before { content: ""; width: 155px; height: 155px; border-radius: 50%; background: rgba(255,255,255,.55); position: absolute; }
+    .product-visual.white { background: #f4f1f4; }
+    .product-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .product-visual.black { background: #e8e5e9; }
+    .product-visual.purple { background: #eee6f5; }
+    .product-visual.blue { background: #e7f0f8; }
+    .pack { z-index: 1; width: 105px; height: 135px; border-radius: 13px; border: 1px solid rgba(50,30,55,.15); box-shadow: 0 12px 20px rgba(50,30,55,.12); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transform: rotate(-4deg); padding: 10px; }
+    .pack.white { background: linear-gradient(145deg, #fff, #eae6ec); color: #5e4867; }
+    .pack.black { background: linear-gradient(145deg, #45404b, #201e26); color: white; }
+    .pack.purple { background: linear-gradient(145deg, #9b75b0, #634074); color: white; }
+    .pack.blue { background: linear-gradient(145deg, #8bb5d9, #4f82ae); color: white; }
+    .pack-logo { font-size: .63rem; letter-spacing: .14em; font-weight: 900; }
+    .mini-pad { width: 36px; height: 60px; border-radius: 50% 50% 45% 45%; border: 1px solid currentColor; opacity: .82; position: relative; }
+    .mini-pad:after { content: ""; position: absolute; inset: 9px 8px; border: 1px solid currentColor; border-radius: 50%; opacity: .55; }
+    .pack-caption { font-size: .5rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+    .product-content { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+    .product-tag { color: var(--plum); text-transform: uppercase; font-size: .68rem; font-weight: 850; letter-spacing: .1em; }
+    .product h3 { font-size: 1.08rem; margin: 5px 0 7px; }
+    .product-desc { color: var(--muted); font-size: .86rem; margin: 0 0 14px; min-height: 42px; }
+    .product-meta { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; color: #687a75; padding: 11px 0; border-top: 1px solid #e8efea; margin-top: auto; }
+    .product-price { font-size: 1.35rem; font-weight: 850; letter-spacing: -.03em; margin-bottom: 14px; }
+    .product .button { width: 100%; padding: 11px 13px; font-size: .9rem; }
+    .about-band { background: var(--blush); }
+    .about-inner { max-width: 1160px; margin: auto; padding: 64px 24px; display: grid; grid-template-columns: .8fr 1.2fr; gap: 55px; align-items: center; }
+    .about-mark { min-height: 260px; border-radius: 30px; background: linear-gradient(145deg, #075b4b, #0c7761); border-bottom: 5px solid var(--gold); display: grid; place-items: center; color: white; text-align: center; padding: 30px; }
+    .about-mark strong { display: block; font-size: 2.4rem; letter-spacing: .14em; }
+    .about-mark strong:before { content: "↗"; color: var(--gold); display: block; font-size: 2rem; margin-bottom: 5px; }
+    .about-mark span { display: block; margin-top: 8px; opacity: .9; font-size: .9rem; }
+    .about-copy h2 { font-size: clamp(2rem, 3.6vw, 2.8rem); letter-spacing: -.04em; line-height: 1.1; margin: 12px 0 17px; }
+    .about-copy p { color: var(--muted); }
+    .about-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .about-points span { padding: 9px 13px; background: white; border: 1px solid var(--line); border-radius: 999px; color: var(--plum); font-weight: 700; font-size: .83rem; }
+    .order-band { padding: 66px 24px; background: var(--plum-dark); color: white; border-top: 4px solid var(--gold); text-align: center; }
+    .order-band h2 { font-size: clamp(2rem, 3.7vw, 3rem); letter-spacing: -.04em; margin: 0 0 12px; }
+    .order-band p { color: #e5d8e9; margin: 0 auto 24px; max-width: 620px; }
+    .order-band .button { background: white; color: var(--plum-dark); }
+    .contact { max-width: 1160px; margin: auto; padding: 62px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 35px; align-items: center; }
+    .contact h2 { font-size: 2rem; letter-spacing: -.04em; margin: 8px 0; }
+    .contact p { color: var(--muted); }
+    .contact-box { border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .contact-number { font-weight: 800; color: var(--plum); }
+    footer { background: #f3f7f3; border-top: 1px solid var(--line); }
+    .footer-inner { max-width: 1160px; margin: auto; padding: 24px; display: flex; justify-content: space-between; gap: 20px; color: #746b79; font-size: .82rem; }
+    .footer-inner strong { color: var(--plum); letter-spacing: .1em; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: #173b35; color: white; padding: 12px 18px; border-radius: 999px; z-index: 100; transition: .25s; font-size: .9rem; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr 0.8fr; gap: 15px; padding-top: 58px; }
+      .hero-art { min-height: 330px; }
+      .products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .about-inner { gap: 30px; }
+    }
+    @media (max-width: 640px) {
+      .topline { font-size: .73rem; }
+      .nav { padding: 12px 17px; }
+      .brand { font-size: 1.1rem; }
+      .brand-mark { width: 34px; height: 34px; }
+      .navlinks { gap: 13px; font-size: .82rem; }
+      .navlinks a:not(.nav-cta) { display: none; }
+      .nav-cta { padding: 10px 14px; font-size: .82rem; }
+      .hero-inner { grid-template-columns: 1fr; padding: 53px 21px 38px; }
+      h1 { font-size: clamp(2.6rem, 12vw, 4rem); }
+      .hero-copy { font-size: 1rem; }
+      .hero-art { min-height: 310px; margin-top: 10px; }
+      .display-card { width: 260px; padding: 18px; }
+      .pad-illustration { height: 170px; }
+      .pad-shape { height: 145px; }
+      .pill-one { left: 2px; top: 25px; }
+      .pill-two { right: 0; bottom: 20px; }
+      .benefits-inner { grid-template-columns: 1fr; gap: 12px; align-items: start; padding: 19px 24px; }
+      .benefit { justify-content: flex-start; }
+      .section { padding: 58px 18px; }
+      .products { gap: 12px; }
+      .product-visual { height: 155px; }
+      .pack { transform: scale(.86) rotate(-4deg); }
+      .product-content { padding: 14px; }
+      .product h3 { font-size: .98rem; }
+      .product-desc { font-size: .8rem; min-height: 50px; }
+      .product-meta { flex-direction: column; gap: 3px; }
+      .product-price { font-size: 1.2rem; }
+      .product .button { font-size: .8rem; padding: 10px 7px; }
+      .about-inner { grid-template-columns: 1fr; padding: 48px 20px; gap: 25px; }
+      .about-mark { min-height: 190px; }
+      .order-band { padding: 52px 20px; }
+      .contact { grid-template-columns: 1fr; padding: 48px 20px; gap: 15px; }
+      .contact-box { align-items: flex-start; flex-direction: column; }
+      .footer-inner { flex-direction: column; gap: 7px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topline">Thoughtfully sourced essentials · Delivery available across Nigeria</div>
+  <header>
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="Portexa home"><span class="brand-mark">P</span><span>PORTEXA</span></a>
+      <div class="navlinks">
+        <a href="#home">Home</a>
+        <a href="#shop">Shop</a>
+        <a href="#about">About</a>
+        <a class="nav-cta" href="#shop">Shop products <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow">Everyday care, thoughtfully sourced</div>
+          <h1>Feel fresh.<br><em>Move confidently.</em></h1>
+          <p class="hero-copy">Find the right everyday protection for your flow, from daytime comfort to overnight coverage. Explore Portexa's sanitary pads and panty liners.</p>
+          <div class="hero-actions">
+            <a class="button" href="#shop">Explore the collection <span aria-hidden="true">→</span></a>
+            <a class="button secondary" href="https://wa.me/2349138176684?text=Hello%20Portexa%2C%20I%27d%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener">Chat with us</a>
+          </div>
+          <div class="trust-note"><span class="trust-icon">✓</span> Built on trust, delivered with excellence.</div>
+        </div>
+        <div class="hero-art" aria-label="Decorative Portexa product illustration">
+          <div class="halo"></div>
+          <div class="floating-pill pill-one">Thoughtful everyday care ✦</div>
+          <div class="display-card">
+            <div class="display-label">PORTEXA · PERSONAL CARE</div>
+            <div class="pad-illustration"><span class="sparkle one">✦</span><span class="sparkle two">✧</span><div class="pad-shape"></div></div>
+            <p>Comfort that fits your day</p>
+          </div>
+          <div class="floating-pill pill-two">Delivery across Nigeria 🇳🇬</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="benefits">
+      <div class="benefits-inner">
+        <div class="benefit"><span>♡</span> Options for different flow needs</div>
+        <div class="benefit"><span>↗</span> Order directly on WhatsApp</div>
+        <div class="benefit"><span>⌂</span> Nationwide delivery available</div>
+      </div>
+    </div>
+
+    <section class="section" id="shop">
+      <div class="section-heading">
+        <div class="eyebrow">Shop Portexa</div>
+        <h2>Find what you need.</h2>
+        <p>Choose the option that suits your day. Delivery is calculated separately and confirmed when you place your order.</p>
+      </div>
+      <div class="products">
+        <article class="product" data-id="white-pad">
+          <div class="product-visual white product-photo"><img src="white-day-pad.jpg" alt="White 245 mm day pad packages" loading="lazy"></div>
+          <div class="product-content"><div class="product-tag">Everyday · White</div><h3>White Day Pad</h3><p class="product-desc">A daytime option for your everyday routine.</p><div class="product-meta"><span>Length: 245 mm</span><span>10 pieces per pack</span></div><div class="product-price">₦2,500</div><button class="button add-btn" onclick="addToCart('white-pad')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="black-pad">
+          <div class="product-visual black"><div class="pack black"><div class="pack-logo">PORTEXA</div><div class="mini-pad"></div><div class="pack-caption">Night pad</div></div></div>
+          <div class="product-content"><div class="product-tag">Overnight · Black</div><h3>Black Night Pad</h3><p class="product-desc">A longer option for overnight use.</p><div class="product-meta"><span>Length: 290 mm</span><span>8 pieces per pack</span></div><div class="product-price">₦2,500</div><button class="button add-btn" onclick="addToCart('black-pad')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="purple-pad">
+          <div class="product-visual purple"><div class="pack purple"><div class="pack-logo">PORTEXA</div><div class="mini-pad"></div><div class="pack-caption">Heavy flow</div></div></div>
+          <div class="product-content"><div class="product-tag">Heavy flow · Purple</div><h3>Purple Heavy-Flow Pad</h3><p class="product-desc">Longer coverage for night use or heavier daytime flow.</p><div class="product-meta"><span>Length: 360 mm</span><span>6 pieces per pack</span></div><div class="product-price">₦3,500</div><button class="button add-btn" onclick="addToCart('purple-pad')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="blue-liner">
+          <div class="product-visual blue"><div class="pack blue"><div class="pack-logo">PORTEXA</div><div class="mini-pad"></div><div class="pack-caption">Panty liner</div></div></div>
+          <div class="product-content"><div class="product-tag">Daily liner · Blue</div><h3>Blue Panty Liner</h3><p class="product-desc">A lightweight liner for everyday freshness.</p><div class="product-meta"><span>Length: 160 mm</span><span>30 pieces per pack</span></div><div class="product-price">₦3,500</div><button class="button add-btn" onclick="addToCart('blue-liner')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="memory-foam">
+          <div class="product-visual" style="background:#edf3ee"><img class="catalog-image" src="https://images.unsplash.com/photo-1631679706909-1844bbd07221?auto=format&fit=crop&w=800&q=80" alt="Bedroom and mattress inspiration" loading="lazy"></div>
+          <div class="product-content"><div class="product-tag">Bedroom</div><h3>Memory Foam</h3><p class="product-desc">Memory foam mattress and comfort products sourced to your requirements.</p><div class="product-meta"><span>Sizes and specifications</span><span>Quote required</span></div><div class="product-price">Request a quote</div><button class="button add-btn" onclick="addToCart('memory-foam')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="spc-floor">
+          <div class="product-visual" style="background:#f2eee8"><img class="catalog-image" src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80" alt="Modern interior flooring inspiration" loading="lazy"></div>
+          <div class="product-content"><div class="product-tag">Home improvement</div><h3>SPC Vinyl Flooring</h3><p class="product-desc">Explore SPC flooring options for your space; final quote depends on specification and area.</p><div class="product-meta"><span>Area and finish needed</span><span>Quote required</span></div><div class="product-price">Request a quote</div><button class="button add-btn" onclick="addToCart('spc-floor')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="air-fryer">
+          <div class="product-visual" style="background:#f4eee7"><img class="catalog-image" src="https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=800&q=80" alt="Kitchen appliance inspiration" loading="lazy"></div>
+          <div class="product-content"><div class="product-tag">Kitchen</div><h3>Air Fryer</h3><p class="product-desc">Tell us your preferred capacity, brand, and features so we can source an option.</p><div class="product-meta"><span>Capacity and brand</span><span>Quote required</span></div><div class="product-price">Request a quote</div><button class="button add-btn" onclick="addToCart('air-fryer')">Add to order</button></div>
+        </article>
+        <article class="product" data-id="washing-machine">
+          <div class="product-visual" style="background:#eaf0f3"><img class="catalog-image" src="https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=800&q=80" alt="Laundry appliance inspiration" loading="lazy"></div>
+          <div class="product-content"><div class="product-tag">Laundry</div><h3>Washing Machine</h3><p class="product-desc">Source options based on capacity, loading style, brand, and budget.</p><div class="product-meta"><span>Capacity and type</span><span>Quote required</span></div><div class="product-price">Request a quote</div><button class="button add-btn" onclick="addToCart('washing-machine')">Add to order</button></div>
+        </article>
+      </div>
+      <div class="cart-panel" id="cart" aria-live="polite">
+        <div class="cart-head"><h3>Your order</h3><span id="cart-count">0 items</span></div>
+        <div class="cart-items" id="cart-items"><p class="quote-note">Your selected products will appear here. Add any product to begin.</p></div>
+        <div class="cart-total"><span>Known-price subtotal</span><span id="cart-total">₦0</span></div>
+        <p class="quote-note">Quote-required products and delivery charges are not included in this subtotal. We'll confirm pricing, availability, delivery, and payment with you.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
+          <button class="button" id="checkout-button" onclick="sendOrderToWhatsApp()" disabled>Send complete order to WhatsApp ↗</button>
+          <button class="button secondary" id="pay-online-button" onclick="openPayForm()" disabled>Pay online securely</button>
+        </div>
+        <form id="pay-form" style="display:none;margin-top:18px;padding:18px;border:1px solid #ded8e5;border-radius:14px;background:#fff">
+          <h3 style="margin:0 0 12px">Delivery details</h3>
+          <label style="display:block;margin:8px 0 4px" for="pay-name">Full name</label><input id="pay-name" required maxlength="160" style="width:100%;padding:12px;border:1px solid #cfc7d8;border-radius:8px">
+          <label style="display:block;margin:8px 0 4px" for="pay-email">Email</label><input id="pay-email" type="email" required maxlength="254" style="width:100%;padding:12px;border:1px solid #cfc7d8;border-radius:8px">
+          <label style="display:block;margin:8px 0 4px" for="pay-phone">Phone number</label><input id="pay-phone" required maxlength="40" style="width:100%;padding:12px;border:1px solid #cfc7d8;border-radius:8px">
+          <label style="display:block;margin:8px 0 4px" for="pay-address">Delivery address</label><textarea id="pay-address" required maxlength="1000" rows="3" style="width:100%;padding:12px;border:1px solid #cfc7d8;border-radius:8px"></textarea>
+          <p class="quote-note">Online payment covers fixed-price products only. Delivery is not included and will be confirmed separately.</p>
+          <button class="button" type="submit" id="pay-submit">Continue to Paystack</button>
+          <button class="button secondary" type="button" onclick="closePayForm()">Cancel</button>
+          <p id="pay-status" role="status" style="margin-top:10px"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="about-band" id="about">
+      <div class="about-inner">
+        <div class="about-mark"><div><strong>PORTEXA</strong><span>Built on trust.<br>Delivered with excellence.</span></div></div>
+        <div class="about-copy">
+          <div class="eyebrow">A little about us</div>
+          <h2>Carefully sourced. Easy to order.</h2>
+          <p>Portexa is a sourcing and procurement brand focused on making it easier for customers to find personal-care products and source everyday home essentials, appliances, and building materials.</p>
+          <p>We arrange delivery across Nigeria. Delivery charges are separate and will be confirmed with you before your order is finalised.</p>
+          <div class="about-points"><span>✓ Nationwide delivery</span><span>✓ Direct WhatsApp orders</span><span>✓ Multiple payment options</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="order-band">
+      <h2>Ready to place an order?</h2>
+      <p>Message Portexa on WhatsApp to confirm availability, delivery fees and your preferred payment method.</p>
+      <a class="button" href="https://wa.me/2349138176684?text=Hello%20Portexa%2C%20I%27d%20like%20to%20place%20an%20order." target="_blank" rel="noopener">Order via WhatsApp <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="contact" id="contact">
+      <div>
+        <div class="eyebrow">We're here to help</div>
+        <h2>Questions? Let's chat.</h2>
+        <p>Contact us for product enquiries, order confirmation, delivery costs and payment details.</p>
+      </div>
+      <div class="contact-box">
+        <div><div style="font-size:.82rem;color:#706b77;margin-bottom:5px;">Portexa WhatsApp</div><div class="contact-number">+234 913 817 6684</div><div style="font-size:.8rem;color:#706b77;margin-top:5px;">Serving customers across Nigeria</div></div>
+        <a class="button" href="https://wa.me/2349138176684?text=Hello%20Portexa%2C%20I%20have%20a%20question." target="_blank" rel="noopener">Message us ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div><strong>PORTEXA</strong> · Built on trust, delivered with excellence.</div>
+      <div>© <span id="year"></span> Portexa. All rights reserved.</div>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite">Opening WhatsApp…</div>
+
+  <script>
+    const WHATSAPP_NUMBER = "2349138176684";
+    const catalog = {
+      "white-pad": {name:"White Day Pad", detail:"245 mm · 10 pieces per pack", price:2500},
+      "black-pad": {name:"Black Night Pad", detail:"290 mm · 8 pieces per pack", price:2500},
+      "purple-pad": {name:"Purple Heavy-Flow Pad", detail:"360 mm · 6 pieces per pack", price:3500},
+      "blue-liner": {name:"Blue Panty Liner", detail:"160 mm · 30 pieces per pack", price:3500},
+      "memory-foam": {name:"Memory Foam", detail:"Please confirm size, type, and specification", price:null},
+      "spc-floor": {name:"SPC Vinyl Flooring", detail:"Please confirm area, finish, and specification", price:null},
+      "air-fryer": {name:"Air Fryer", detail:"Please confirm capacity, brand, and features", price:null},
+      "washing-machine": {name:"Washing Machine", detail:"Please confirm capacity, loading style, and brand", price:null}
+    };
+    const cart = {};
+    const money = n => "₦" + n.toLocaleString("en-NG");
+    function addToCart(id) { cart[id] = (cart[id] || 0) + 1; renderCart(); document.getElementById('cart').scrollIntoView({behavior:'smooth',block:'nearest'}); }
+    function changeQty(id, delta) { cart[id] = (cart[id] || 0) + delta; if (cart[id] <= 0) delete cart[id]; renderCart(); }
+    function renderCart() {
+      const box = document.getElementById('cart-items'); const ids = Object.keys(cart);
+      document.getElementById('cart-count').textContent = ids.reduce((n,id)=>n+cart[id],0) + (ids.reduce((n,id)=>n+cart[id],0)===1?' item':' items');
+      document.getElementById('cart-total').textContent = money(ids.reduce((sum,id)=>sum+(catalog[id].price||0)*cart[id],0));
+      document.getElementById('checkout-button').disabled = ids.length===0;
+      const payButton = document.getElementById('pay-online-button');
+      if (payButton) payButton.disabled = ids.length===0 || ids.some(id => catalog[id].price===null);
+      if (!ids.length) { box.innerHTML='<p class="quote-note">Your selected products will appear here. Add any product to begin.</p>'; return; }
+      box.innerHTML = ids.map(id => { const p=catalog[id]; const subtotal=p.price===null?'Quote required':money(p.price*cart[id]); return `<div class="cart-row"><div><strong>${p.name}</strong><div class="quote-note">${p.detail}</div><div>${subtotal}</div></div><div class="qty-controls"><button aria-label="Decrease ${p.name} quantity" onclick="changeQty('${id}',-1)">−</button><strong>${cart[id]}</strong><button aria-label="Increase ${p.name} quantity" onclick="changeQty('${id}',1)">+</button></div><button class="button secondary" onclick="changeQty('${id}',-${cart[id]})" style="padding:7px 10px">Remove</button></div>`; }).join('');
+    }
+    function sendOrderToWhatsApp() {
+      const ids=Object.keys(cart); if(!ids.length) return;
+      const lines=["Hello Portexa, I'd like to place this order:",""];
+      let total=0;
+      ids.forEach((id,i)=>{ const p=catalog[id]; lines.push(`${i+1}. ${p.name}`,`   Details: ${p.detail}`,`   Quantity: ${cart[id]}`); if(p.price===null) lines.push('   Price: Please quote'); else { const sub=p.price*cart[id]; total+=sub; lines.push(`   Unit price: ${money(p.price)}`,`   Subtotal: ${money(sub)}`); } lines.push(''); });
+      lines.push(`Known-price subtotal: ${money(total)}`,"Please confirm availability, quote-required item prices, delivery charges, and payment arrangements. Thank you.");
+      window.open('https://wa.me/'+WHATSAPP_NUMBER+'?text='+encodeURIComponent(lines.join('\n')),'_blank','noopener,noreferrer');
+    }
+    function openPayForm() {
+      const ids = Object.keys(cart);
+      if (!ids.length || ids.some(id => catalog[id].price===null)) {
+        alert('Products that need a quote must be confirmed with Portexa before online payment.');
+        return;
+      }
+      document.getElementById('pay-form').style.display = 'block';
+      document.getElementById('pay-form').scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+    function closePayForm() { document.getElementById('pay-form').style.display = 'none'; }
+    document.getElementById('pay-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const status = document.getElementById('pay-status');
+      const button = document.getElementById('pay-submit');
+      button.disabled = true; status.textContent = 'Preparing secure checkout…';
+      try {
+        const response = await fetch('/api/paystack/initialize', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            customer: {
+              name: document.getElementById('pay-name').value,
+              email: document.getElementById('pay-email').value,
+              phone: document.getElementById('pay-phone').value,
+              address: document.getElementById('pay-address').value
+            },
+            items: Object.keys(cart).map(id => ({id, quantity: cart[id]}))
+          })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.authorizationUrl) throw new Error(data.error || 'Could not start payment.');
+        window.location.href = data.authorizationUrl;
+      } catch (error) {
+        status.textContent = error.message || 'Payment could not be started. Please try again.';
+        button.disabled = false;
+      }
+    });
+    // Expose handlers for product buttons and cart controls, including local-file previews.
+    window.addToCart = addToCart;
+    window.changeQty = changeQty;
+    window.sendOrderToWhatsApp = sendOrderToWhatsApp;
+    window.openPayForm = openPayForm;
+    window.closePayForm = closePayForm;
+    document.getElementById("year").textContent = new Date().getFullYear();
+    renderCart();
+  </script>
+
+  <div id="portexa-chat-launcher" style="position:fixed;right:18px;bottom:18px;z-index:9998">
+    <button type="button" id="portexa-chat-open" class="button" style="border-radius:999px;box-shadow:0 8px 24px #0002">Chat with Portexa</button>
+  </div>
+  <section id="portexa-chat-panel" aria-label="Portexa live chat" style="display:none;position:fixed;right:16px;bottom:78px;width:min(360px,calc(100vw - 32px));height:470px;max-height:70vh;background:white;border:1px solid #ddd;border-radius:16px;box-shadow:0 12px 38px #0003;z-index:9999;overflow:hidden;flex-direction:column">
+    <header style="padding:14px;background:#153f35;color:white;display:flex;justify-content:space-between;align-items:center"><strong>Portexa support</strong><button id="portexa-chat-close" type="button" aria-label="Close chat" style="background:transparent;border:0;color:white;font-size:22px">×</button></header>
+    <div id="portexa-chat-messages" style="padding:12px;overflow:auto;flex:1;font-size:14px"><p>Send us a message. We’ll reply as soon as we can.</p></div>
+    <form id="portexa-chat-form" style="padding:12px;border-top:1px solid #eee">
+      <input id="portexa-chat-name" placeholder="Your name" required maxlength="120" style="box-sizing:border-box;width:100%;padding:9px;margin-bottom:6px;border:1px solid #ddd;border-radius:7px">
+      <input id="portexa-chat-email" placeholder="Your email" type="email" required maxlength="254" style="box-sizing:border-box;width:100%;padding:9px;margin-bottom:6px;border:1px solid #ddd;border-radius:7px">
+      <textarea id="portexa-chat-message" placeholder="Write your message…" required maxlength="4000" rows="2" style="box-sizing:border-box;width:100%;padding:9px;border:1px solid #ddd;border-radius:7px"></textarea>
+      <button class="button" type="submit" id="portexa-chat-send" style="width:100%;margin-top:6px">Send message</button>
+      <small id="portexa-chat-status" role="status"></small>
+    </form>
+  </section>
+  <script>
+  (function(){
+    const $ = id => document.getElementById(id);
+    const panel = $('portexa-chat-panel');
+    const messages = $('portexa-chat-messages');
+    let token = localStorage.getItem('portexa_chat_token') || '';
+    $('portexa-chat-open').addEventListener('click',()=>{panel.style.display='flex'; loadMessages();});
+    $('portexa-chat-close').addEventListener('click',()=>{panel.style.display='none';});
+    function render(items) {
+      if (!items || !items.length) return;
+      messages.innerHTML = items.map(m => '<div style="margin:8px 0;padding:9px 11px;border-radius:10px;background:'+(m.sender_role==='admin'?'#eaf4ef':'#f3f0f6')+'"><strong>'+(m.sender_role==='admin'?'Portexa':'You')+'</strong><div style="white-space:pre-wrap;overflow-wrap:anywhere"></div><small style="color:#666">'+new Date(m.created_at).toLocaleString()+'</small></div>').join('');
+      [...messages.querySelectorAll('div[style]')].forEach((node,i)=>{const content=node.querySelector('div'); if(content) content.textContent=items[i].message;});
+      messages.scrollTop=messages.scrollHeight;
+    }
+    async function loadMessages() {
+      if(!token) return;
+      try { const r=await fetch('/api/chat?visitorToken='+encodeURIComponent(token)); const d=await r.json(); if(r.ok) render(d.messages); } catch(e) {}
+    }
+    $('portexa-chat-form').addEventListener('submit',async e=>{
+      e.preventDefault(); const btn=$('portexa-chat-send'); const status=$('portexa-chat-status');
+      btn.disabled=true; status.textContent='Sending…';
+      try {
+        const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          name:$('portexa-chat-name').value,email:$('portexa-chat-email').value,message:$('portexa-chat-message').value,visitorToken:token
+        })});
+        const d=await r.json(); if(!r.ok) throw new Error(d.error||'Could not send message.');
+        token=d.visitorToken; localStorage.setItem('portexa_chat_token',token);
+        $('portexa-chat-message').value=''; status.textContent='Message sent. We’ll get back to you.';
+        await loadMessages();
+      } catch(err) { status.textContent=err.message||'Could not send message.'; }
+      finally {btn.disabled=false;}
+    });
+    setInterval(loadMessages,15000);
+  })();
+  </script>
+
+</body>
+</html>

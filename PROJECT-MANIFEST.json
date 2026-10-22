@@ -1,0 +1,15 @@
+{
+  "project": "Portexa integrated storefront starter",
+  "source_preserved": "index.html copied from the previously shared Portexa file; its current image paths were not rewritten.",
+  "integrations": [
+    "Supabase auth and orders",
+    "Paystack server-side initialization and verification",
+    "Paystack webhook",
+    "Resend contact and chat notifications",
+    "Customer account page",
+    "Admin dashboard",
+    "Customer support chat"
+  ],
+  "configuration_required": true,
+  "haystack": "intentionally deferred as agreed"
+}

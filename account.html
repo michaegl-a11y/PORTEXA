@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portexa | Customer Account</title>
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7f4;color:#183e35;margin:0;padding:24px}.wrap{max-width:760px;margin:auto}.card{background:#fff;padding:22px;border-radius:16px;margin:16px 0;box-shadow:0 4px 20px #0000000b}input,button{font:inherit;padding:12px;border-radius:8px}input{width:100%;box-sizing:border-box;border:1px solid #cfd8d2;margin:6px 0 12px}button{border:0;background:#17483b;color:#fff;cursor:pointer;margin:4px 6px 4px 0}button.secondary{background:#e7eee9;color:#183e35}small,#status{color:#626e67}.order{border-top:1px solid #e4e9e5;padding:12px 0;overflow-wrap:anywhere}a{color:#17483b}
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><div class="wrap"><a href="/">← Back to Portexa</a><h1>Customer account</h1><p>Sign in to view your Portexa orders, or create an account for future orders.</p>
+<div class="card"><label>Full name (for new account)<input id="name" autocomplete="name"></label><label>Email<input id="email" type="email" autocomplete="email" required></label><label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label><button id="signup">Create account</button><button id="login" class="secondary">Sign in</button><button id="logout" class="secondary" style="display:none">Sign out</button><p id="status" role="status"></p></div>
+<div class="card"><h2>Your orders</h2><div id="orders">Sign in to view your orders.</div></div></div>
+<script>
+(async()=>{
+ const status=document.getElementById('status'), orders=document.getElementById('orders');
+ const cfg=await fetch('/api/config').then(r=>r.json());
+ if(!cfg.supabaseUrl||!cfg.supabaseAnonKey){status.textContent='Account service is not configured yet. Please try again later.';return;}
+ const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
+ const token=async()=> (await sb.auth.getSession()).data.session?.access_token||'';
+ async function refresh(){
+  const {data}=await sb.auth.getSession(); const session=data.session;
+  document.getElementById('logout').style.display=session?'inline-block':'none';
+  if(!session){orders.textContent='Sign in to view your orders.';return;}
+  const res=await fetch('/api/customer/orders',{headers:{Authorization:'Bearer '+session.access_token}});
+  const payload=await res.json();
+  if(!res.ok){orders.textContent=payload.error||'Could not load orders.';return;}
+  orders.innerHTML=payload.orders.length?payload.orders.map(o=>`<div class="order"><strong>Order ${o.id.slice(0,8)}</strong><p>${new Date(o.created_at).toLocaleString()} · ₦${Number(o.subtotal).toLocaleString('en-NG')}</p><p>Status: ${o.status} · Payment: ${o.payment_status||'unpaid'}</p><p>${(o.items||[]).map(i=>`${i.name} × ${i.quantity}`).join(', ')}</p></div>`).join(''):'No orders yet.';
+ }
+ document.getElementById('signup').onclick=async()=>{
+  status.textContent='Creating account…';
+  const {error}=await sb.auth.signUp({email:document.getElementById('email').value,password:document.getElementById('password').value,options:{data:{full_name:document.getElementById('name').value}}});
+  status.textContent=error?error.message:'Account request sent. If email confirmation is enabled, check your inbox to confirm before signing in.'; await refresh();
+ };
+ document.getElementById('login').onclick=async()=>{
+  status.textContent='Signing in…';
+  const {error}=await sb.auth.signInWithPassword({email:document.getElementById('email').value,password:document.getElementById('password').value});
+  status.textContent=error?error.message:'Signed in.'; await refresh();
+ };
+ document.getElementById('logout').onclick=async()=>{await sb.auth.signOut();status.textContent='Signed out.';await refresh();};
+ sb.auth.onAuthStateChange(()=>setTimeout(refresh,0)); await refresh();
+})();
+</script></body></html>

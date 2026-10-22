@@ -1,0 +1,11 @@
+{
+  "name": "portexa-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portexa storefront with Supabase accounts, orders, chat, Resend email, and Paystack checkout.",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
+    "resend": "^6.0.0"
+  }
+}
