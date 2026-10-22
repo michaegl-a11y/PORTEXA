@@ -402,10 +402,12 @@
         const session = data.session;
         logoutButton.hidden = !session;
         if (!session) {
-          signedInAs.textContent = 'Sign in to view your order history.';
-          orders.textContent = 'Your orders will appear here after you sign in.';
+          signedInAs.textContent = '';
+          orders.replaceChildren();
+          orders.hidden = true;
           return;
         }
+orders.hidden = false;
         signedInAs.textContent = 'Signed in as ' + session.user.email;
         orders.textContent = 'Loading your orders…';
         try {
