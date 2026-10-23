@@ -49,7 +49,6 @@
     h1, h2, h3 { margin: 0 0 12px; }
     h2 { font-size: 20px; }
 
-    /* Login */
     #login-view { max-width: 420px; margin: 28px auto 0; }
     #login-view h1 { font-size: 26px; }
     #login-view p { color: var(--muted); margin: 0 0 18px; }
@@ -71,7 +70,6 @@
     button.ghost:hover { background: var(--cream); }
     .full { width: 100%; }
 
-    /* Toolbar + stats */
     .toolbar { display: flex; gap: 10px; margin-bottom: 14px; }
     .toolbar button { flex: 1; }
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
@@ -79,12 +77,10 @@
     .stat b { display: block; font-size: 28px; }
     .stat small { color: var(--muted); }
 
-    /* Tabs */
     .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
     .tab { flex: 1; background: #fff; color: var(--green); border: 1px solid var(--line); }
     .tab.active { background: var(--green); color: #fff; border-color: var(--green); }
 
-    /* Orders */
     .order { border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; background: #fff; }
     .order-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
     .order-id { font-weight: 700; }
@@ -98,7 +94,6 @@
     .items { margin: 10px 0; padding: 10px 12px; background: var(--bg); border-radius: 10px; }
     .total { font-weight: 700; font-size: 17px; }
 
-    /* Conversations */
     .conv { display: flex; justify-content: space-between; align-items: center; gap: 12px;
       padding: 14px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
     .conv:last-child { border-bottom: 0; }
@@ -125,10 +120,10 @@
   </header>
 
   <main class="wrap">
-    <p id="status">Sign in with your administrator account.</p>
+    <p id="status">Loading...</p>
 
-    <!-- LOGIN (visible only when signed out) -->
-    <section id="login-view" class="card">
+    <!-- LOGIN (shown only when signed out) -->
+    <section id="login-view" class="card" hidden>
       <h1>Welcome back</h1>
       <p>Sign in to manage orders and customer messages.</p>
       <form id="login-form">
@@ -142,7 +137,7 @@
       </form>
     </section>
 
-    <!-- DASHBOARD (visible only when signed in) -->
+    <!-- DASHBOARD (shown only when signed in) -->
     <section id="app-view" hidden>
       <div class="toolbar">
         <button id="refresh" class="ghost" type="button">Refresh data</button>
@@ -222,7 +217,7 @@
         sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       } catch (error) {
         console.error('Configuration error:', error);
-        status.textContent = 'Could not load configuration. Please refresh.';
+        status.textContent = 'Could not load configuration: ' + error.message;
         return;
       }
 
@@ -292,6 +287,7 @@
         const s = await session();
         if (!s) {
           showApp(false);
+          status.textContent = 'Sign in with your administrator account.';
           return;
         }
         showApp(true);
@@ -301,11 +297,13 @@
           const response = await fetch('/api/admin/data', {
             headers: { Authorization: 'Bearer ' + s.access_token }
           });
-          const data = await response.json();
+          const raw = await response.text();
+          let data = {};
+          try { data = JSON.parse(raw); } catch (e) {}
 
           if (!response.ok) {
-            status.textContent = 'Could not load dashboard: ' +
-              (data.error || 'Request failed (' + response.status + ').');
+            status.textContent = 'Could not load dashboard (HTTP ' + response.status + '): ' +
+              (data.error || raw.slice(0, 200) || 'No response from server');
             return;
           }
 
@@ -314,7 +312,7 @@
           status.textContent = 'Admin data loaded.';
         } catch (error) {
           console.error('Dashboard loading error:', error);
-          status.textContent = 'Could not load dashboard data. Please refresh and try again.';
+          status.textContent = 'Could not load dashboard data: ' + error.message;
         }
       }
 
@@ -357,7 +355,7 @@
           box.scrollTop = box.scrollHeight;
         } catch (error) {
           console.error('Conversation loading error:', error);
-          status.textContent = 'Could not load messages. Please try again.';
+          status.textContent = 'Could not load messages: ' + error.message;
         }
       }
 
@@ -433,7 +431,7 @@
           status.textContent = 'Reply sent.';
         } catch (error) {
           console.error('Reply error:', error);
-          status.textContent = 'Could not send reply. Please try again.';
+          status.textContent = 'Could not send reply: ' + error.message;
         }
       });
 
