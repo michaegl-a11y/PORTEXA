@@ -23,9 +23,18 @@ async function getUserFromRequest(req) {
 }
 async function isAdmin(userId) {
   if (!userId) return false;
+
   const db = supabaseAdmin();
-  const { data, error } = await db.from('profiles').select('role').eq('id', userId).maybeSingle();
-  return !error && data && data.role === 'admin';
+
+  const { data, error } = await db
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error || !data) return false;
+
+  return ['admin', 'owner'].includes(data.role);
 }
 const CATALOG = {
   'white-pad': { name: 'White Day Pad', detail: '245 mm Â· 10 pieces per pack', price: 2500 },
