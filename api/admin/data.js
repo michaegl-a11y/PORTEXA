@@ -10,7 +10,14 @@ module.exports = async function handler(req, res) {
       db.from('orders').select('id,customer_name,customer_email,customer_phone,delivery_address,items,subtotal,currency,status,payment_status,payment_reference,created_at').order('created_at', { ascending: false }).limit(100),
       db.from('chat_conversations').select('id,name,email,visitor_token,status,created_at,updated_at').order('updated_at', { ascending: false }).limit(100)
     ]);
-    if (orders.error || conversations.error) return jsonError(res, 500, 'Could not load admin data.');
+if (orders.error || conversations.error) {
+  console.error('Admin data query errors:', {
+    orders: orders.error?.message,
+    conversations: conversations.error?.message
+  });
+
+  return jsonError(res, 500, 'Could not load admin data.');
+}
     return res.status(200).json({ orders: orders.data || [], conversations: conversations.data || [] });
   } catch (e) {
     console.error('Admin data error:', e.message);
