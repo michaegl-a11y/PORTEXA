@@ -20,7 +20,22 @@ $('conversations').querySelectorAll('button').forEach(b=>b.onclick=()=>openThrea
 }
 async function openThread(id,token,name){activeConversation=id;activeToken=token;$('thread').style.display='block';$('thread-title').textContent='Conversation with '+name;await loadThread();}
 async function loadThread(){const r=await fetch('/api/chat?visitorToken='+encodeURIComponent(activeToken));const d=await r.json();$('thread-messages').innerHTML=(d.messages||[]).map(m=>`<div class="chatrow"><strong>${m.sender_role==='admin'?'Portexa':'Customer'}</strong> · <small>${new Date(m.created_at).toLocaleString()}</small><p style="white-space:pre-wrap"></p></div>`).join('');[...$('thread-messages').querySelectorAll('p')].forEach((p,i)=>p.textContent=d.messages[i].message);}
-$('login').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('email').value,password:$('password').value});status.textContent=error?error.message:'Signed in.';await refresh();};
+$('login').onclick = async () => {
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: $('email').value.trim(),
+    password: $('password').value
+  });
+
+  if (error) {
+    status.textContent = 'Login failed: ' + error.message;
+    return;
+  }
+
+  status.textContent = 'Login successful. Checking session...';
+  console.log('Login returned session:', !!data.session);
+
+  await refresh();
+};
 $('logout').onclick=async()=>{await sb.auth.signOut();status.textContent='Signed out.';await refresh();};
 $('refresh').onclick=refresh;
 $('reply-form').onsubmit=async e=>{e.preventDefault();const s=await session();if(!s||!activeConversation)return;const r=await fetch('/api/admin/reply',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+s.access_token},body:JSON.stringify({conversationId:activeConversation,message:$('reply-text').value})});const d=await r.json();if(!r.ok){status.textContent=d.error||'Reply failed.';return;}$('reply-text').value='';await loadThread();status.textContent='Reply saved. The customer can see it in the chat widget.';};
