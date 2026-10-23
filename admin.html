@@ -4,7 +4,16 @@ body{font-family:system-ui,sans-serif;background:#f6f7f4;color:#183e35;margin:0;
 <script>
 (async()=>{const $=id=>document.getElementById(id);const status=$('status');let sb,activeConversation=null,activeToken=null;
 const cfg=await fetch('/api/config').then(r=>r.json());if(!cfg.supabaseUrl||!cfg.supabaseAnonKey){status.textContent='Supabase is not configured.';return;}sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
-async function session(){return (await sb.auth.getSession()).data.session;}
+async function session() {
+  const { data, error } = await sb.auth.getSession();
+  if (error) {
+    console.error('Session error:', error.message);
+    status.textContent = 'Session error: ' + error.message;
+    return null;
+  }
+  console.log('Session available:', !!data.session);
+  return data.session;
+}
 async function refresh(){const s=await session();if(!s){$('orders').textContent='Sign in first.';$('conversations').textContent='Sign in first.';return;}const r=await fetch('/api/admin/data',{headers:{Authorization:'Bearer '+s.access_token}});const d=await r.json();if(!r.ok){status.textContent=d.error||'Admin access required.';return;}status.textContent='Signed in. Admin data loaded.';$('orders').innerHTML='<table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Order status</th></tr></thead><tbody>'+d.orders.map(o=>`<tr><td>${o.id.slice(0,8)}<br><small>${new Date(o.created_at).toLocaleString()}</small></td><td>${o.customer_name}<br>${o.customer_email}<br>${o.customer_phone}<br>${o.delivery_address}</td><td>${(o.items||[]).map(i=>`${i.name} × ${i.quantity}`).join('<br>')}</td><td>₦${Number(o.subtotal).toLocaleString('en-NG')}</td><td>${o.payment_status||'unpaid'}<br><small>${o.payment_reference||''}</small></td><td>${o.status}</td></tr>`).join('')+'</tbody></table>';
 $('conversations').innerHTML=d.conversations.length?d.conversations.map(c=>`<div class="chatrow"><strong>${c.name}</strong> · ${c.email}<br><small>${c.status} · ${new Date(c.updated_at||c.created_at).toLocaleString()}</small><br><button data-id="${c.id}" data-token="${c.visitor_token}" data-name="${c.name.replace(/"/g,'&quot;')}">Open conversation</button></div>`).join(''):'No conversations yet.';
 $('conversations').querySelectorAll('button').forEach(b=>b.onclick=()=>openThread(b.dataset.id,b.dataset.token,b.dataset.name));
