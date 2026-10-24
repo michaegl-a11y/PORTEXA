@@ -285,3 +285,100 @@ textarea:focus {
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================
+   PORTEXA PHASE 2: STOREFRONT UI POLISH
+   (styling only - no changes to page structure)
+   ========================================= */
+
+/* Keyboard / accessibility focus */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Hero: floating labels sit above the card instead of hiding behind it */
+.display-card { z-index: 1; }
+.floating-pill { z-index: 2; }
+
+/* Product cards: every photo in the same square frame */
+.products .product-visual {
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background: #f4f7f2;
+}
+.products .catalog-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Product cards: main action first, details second */
+.product .page-actions {
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 0;
+}
+.product .page-actions .button.secondary { order: 2; }
+
+/* Easier-to-tap quantity buttons */
+.qty-controls button {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+
+/* ---------- Tablet and phone ---------- */
+@media (max-width: 700px) {
+
+  /* Compact header: logo, then one tidy row of links */
+  .topline { padding: 7px 14px; font-size: .7rem; line-height: 1.35; }
+  .site-nav {
+    gap: 2px;
+    padding: 8px 14px 4px;
+    align-items: stretch;
+  }
+  .site-nav .brand { justify-content: center; }
+  .site-nav .brand img { height: 34px !important; }
+  .site-nav .navlinks {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    font-size: .86rem;
+  }
+  .site-nav .navlinks::-webkit-scrollbar { display: none; }
+  .site-nav .navlinks a:not(.nav-cta) {
+    padding: 9px 7px;
+    flex: 0 0 auto;
+  }
+  /* "Shop products" button repeats the Shop link, so hide it on small screens */
+  .site-nav .nav-cta { display: none; }
+
+  /* Hero: calmer, no overlapping labels */
+  .hero-inner { padding: 36px 20px 30px; gap: 8px; }
+  .hero-art { min-height: 250px; margin-top: 0; }
+  .halo { width: 250px; }
+  .floating-pill { display: none; }
+  .display-card { transform: none; width: 230px; padding: 16px; }
+  .pad-illustration { height: 140px; }
+  .pad-shape { height: 120px; width: 70px; }
+  .pad-shape:before { width: 30px; height: 78px; top: 20px; left: 18px; }
+
+  /* Full-width, easy-to-tap buttons */
+  .hero-actions .button,
+  .page-actions .button { flex: 1 1 100%; }
+  /* ...but product cards stack their buttons, so keep those at normal height */
+  .product .page-actions .button { flex: 0 0 auto; }
+
+  /* Product page title fits the screen */
+  .about-inner h1 { font-size: clamp(1.9rem, 8.5vw, 2.5rem); margin: 8px 0 12px; }
+
+  /* Chat button: smaller, and room at the bottom so it never hides the footer */
+  .chat-launcher { right: 12px; bottom: 12px; }
+  .chat-launcher button { padding: 10px 15px; font-size: .88rem; }
+  .site-footer { padding-bottom: 82px; }
+}
