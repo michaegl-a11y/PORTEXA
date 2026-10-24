@@ -46,3 +46,4 @@ module.exports = async function handler(req, res) {
     return jsonError(res, 500, 'Could not load admin data.');
   }
 };
+// deploy trigger
