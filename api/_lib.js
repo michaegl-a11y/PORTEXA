@@ -37,10 +37,10 @@ async function isAdmin(userId) {
   return ['admin', 'owner'].includes(data.role);
 }
 const CATALOG = {
-  'white-pad': { name: 'White Day Pad', detail: '245 mm Â· 10 pieces per pack', price: 2500 },
-  'black-pad': { name: 'Black Night Pad', detail: '290 mm Â· 8 pieces per pack', price: 2500 },
-  'purple-pad': { name: 'Purple Heavy-Flow Pad', detail: '360 mm Â· 6 pieces per pack', price: 3500 },
-  'blue-liner': { name: 'Blue Panty Liner', detail: '160 mm Â· 30 pieces per pack', price: 3500 }
+  'white-pad': { name: 'White Day Pad', detail: '245 mm · 10 pieces per pack', price: 2500 },
+  'black-pad': { name: 'Black Night Pad', detail: '290 mm · 8 pieces per pack', price: 2500 },
+  'purple-pad': { name: 'Purple Heavy-Flow Pad', detail: '360 mm · 6 pieces per pack', price: 3500 },
+  'blue-liner': { name: 'Blue Panty Liner', detail: '160 mm · 30 pieces per pack', price: 3500 }
 };
 function jsonError(res, status, message) { return res.status(status).json({ error: message }); }
 module.exports = { supabaseAdmin, supabasePublic, getUserFromRequest, isAdmin, CATALOG, jsonError };
