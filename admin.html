@@ -5,6 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#075b4b">
   <title>Portexa | Admin</title>
+  <script>
+    /* Safety net: never fail silently. Shows any page error in the status bar. */
+    (function () {
+      var started = false;
+      window.__adminStarted = function () { started = true; };
+      function show(message) {
+        var el = document.getElementById('status');
+        if (el) { el.textContent = message; el.className = 'err'; }
+      }
+      window.addEventListener('error', function (e) {
+        show('Page error: ' + (e.message || 'unknown') + (e.lineno ? ' (line ' + e.lineno + ')' : '') + ' [admin v3.1]');
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        show('Page error: ' + ((e.reason && e.reason.message) || e.reason || 'unknown') + ' [admin v3.1]');
+      });
+      setTimeout(function () {
+        if (!started) show('The admin page could not start (the page file may be incomplete). Close this tab and reopen it, then tell Claude: "script did not start" [admin v3.1]');
+      }, 6000);
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -233,6 +253,7 @@
     #reply-text { margin: 0 0 10px; resize: vertical; }
     .empty { color: var(--muted); padding: 10px 0; text-align: center; }
     h2 { font-size: 1.15rem; margin: 0 0 12px; }
+    .ver { text-align: center; color: var(--muted); font-size: .72rem; margin: 22px 0 0; opacity: .7; }
   </style>
 </head>
 <body>
@@ -321,12 +342,31 @@
         </div>
       </section>
     </section>
+    <p class="ver">Admin v3.1</p>
   </main>
 
   <script>
     (async () => {
+      if (window.__adminStarted) window.__adminStarted();
       const $ = id => document.getElementById(id);
       const statusEl = $('status');
+
+      // Never wait forever: give up with a clear message after a while.
+      function withTimeout(promise, ms, message) {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error(message)), ms);
+          promise.then(
+            value => { clearTimeout(timer); resolve(value); },
+            error => { clearTimeout(timer); reject(error); }
+          );
+        });
+      }
+      // Attach a listener without crashing the whole page if an element is missing.
+      function on(id, eventName, handler) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(eventName, handler);
+        else console.error('Admin page: missing element #' + id);
+      }
 
       const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 
@@ -400,14 +440,14 @@
         $('menu').hidden = !open;
         $('menu-btn').setAttribute('aria-expanded', String(open));
       }
-      $('menu-btn').addEventListener('click', event => { event.stopPropagation(); toggleMenu(); });
+      on('menu-btn', 'click', event => { event.stopPropagation(); toggleMenu(); });
       document.addEventListener('click', event => {
         if (!$('menu').hidden && !$('menu-wrap').contains(event.target)) closeMenu();
       });
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && !$('menu').hidden) { closeMenu(); $('menu-btn').focus(); }
       });
-      $('menu-refresh').addEventListener('click', () => { closeMenu(); refresh(); });
+      on('menu-refresh', 'click', () => { closeMenu(); refresh(); });
       function showTab(name) {
         const isOrders = name === 'orders';
         $('panel-orders').hidden = !isOrders;
@@ -415,12 +455,13 @@
         $('tab-orders').classList.toggle('active', isOrders);
         $('tab-support').classList.toggle('active', !isOrders);
       }
-      $('tab-orders').addEventListener('click', () => showTab('orders'));
-      $('tab-support').addEventListener('click', () => showTab('support'));
+      on('tab-orders', 'click', () => showTab('orders'));
+      on('tab-support', 'click', () => showTab('support'));
 
       // ---------- start-up ----------
       try {
-        const res = await fetch('/api/config');
+        const res = await withTimeout(fetch('/api/config'), 12000,
+          'The server did not answer. Check your internet connection and refresh the page.');
         const cfg = await res.json();
         if (!res.ok || !cfg.supabaseUrl || !cfg.supabaseAnonKey) {
           setStatus('Supabase is not configured correctly.', 'err');
@@ -434,13 +475,20 @@
       }
 
       async function session() {
-        const { data, error } = await sb.auth.getSession();
-        if (error) {
+        try {
+          const { data, error } = await withTimeout(sb.auth.getSession(), 8000,
+            'Checking your sign-in took too long. Close other Portexa admin tabs, then refresh.');
+          if (error) {
+            console.error('Session error:', error.message);
+            setStatus('Session error: ' + error.message, 'err');
+            return null;
+          }
+          return data.session;
+        } catch (error) {
           console.error('Session error:', error.message);
-          setStatus('Session error: ' + error.message, 'err');
+          setStatus(error.message, 'err');
           return null;
         }
-        return data.session;
       }
 
       // ---------- summary ----------
@@ -532,4 +580,397 @@
         const q = orderQuery.trim().toLowerCase();
         const list = orders.filter(chip[2]).filter(o => matchesQuery(o, q));
         if (!orders.length) {
-          $('orders').innerHTML = '<p class="empty">No orders yet. New orders will appear here.
+          $('orders').innerHTML = '<p class="empty">No orders yet. New orders will appear here.</p>';
+          return;
+        }
+        if (!list.length) {
+          $('orders').innerHTML = '<p class="empty">No orders match this filter.</p>';
+          return;
+        }
+        $('orders').innerHTML = list.map(orderCard).join('');
+        $('orders').querySelectorAll('select[data-id]').forEach(sel =>
+          sel.addEventListener('change', () => changeOrderStatus(sel)));
+      }
+
+      on('order-search', 'input', event => {
+        orderQuery = event.target.value;
+        renderOrders();
+      });
+
+      async function changeOrderStatus(sel) {
+        const id = sel.dataset.id;
+        const previous = sel.dataset.current;
+        const next = sel.value;
+        if (next === previous) return;
+        sel.disabled = true;
+        try {
+          const s = await session();
+          if (!s) { showApp(false); setStatus('Please sign in again.', 'err'); return; }
+          const response = await fetch('/api/admin/order-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + s.access_token },
+            body: JSON.stringify({ orderId: id, status: next })
+          });
+          let data = {};
+          try { data = await response.json(); } catch (e) {}
+          if (!response.ok) throw new Error(data.error || 'The order status could not be saved.');
+          const order = orders.find(o => o.id === id);
+          if (order) order.status = next;
+          renderOrders();
+          setStatus('Order #' + id.slice(0, 8) + ' marked as ' + next + '.', 'ok');
+        } catch (error) {
+          sel.value = previous;
+          setStatus(error.message, 'err');
+        } finally {
+          sel.disabled = false;
+        }
+      }
+
+      // ---------- support ----------
+      const isClosed = c => c.closed === true || c.status === 'closed';
+
+      function renderConvChips() {
+        const needs = conversations.filter(c => c.needs_reply).length;
+        const open = conversations.filter(c => !isClosed(c)).length;
+        const closed = conversations.length - open;
+        const chips = [['open', 'Open', open], ['needs', 'Needs reply', needs], ['closed', 'Closed', closed]];
+        $('conv-chips').innerHTML = chips.map(([key, label, n]) =>
+          `<button type="button" class="chip${convFilter === key ? ' active' : ''}" data-conv-chip="${key}">${label}<span>${n}</span></button>`).join('');
+        $('conv-chips').querySelectorAll('[data-conv-chip]').forEach(b =>
+          b.addEventListener('click', () => { convFilter = b.dataset.convChip; renderConversations(); }));
+      }
+
+      function renderConversations() {
+        renderConvChips();
+        let list = conversations.slice();
+        if (convFilter === 'needs') list = list.filter(c => c.needs_reply);
+        else if (convFilter === 'closed') list = list.filter(isClosed);
+        else list = list.filter(c => !isClosed(c));
+        // Conversations waiting for a reply first, then newest activity.
+        list.sort((a, b) => (b.needs_reply - a.needs_reply) ||
+          (new Date(b.last_message_at || b.updated_at || 0) - new Date(a.last_message_at || a.updated_at || 0)));
+        if (!conversations.length) {
+          $('conversations').innerHTML = '<p class="empty">No conversations yet. Customer chats will appear here.</p>';
+          return;
+        }
+        if (!list.length) {
+          const text = convFilter === 'closed' ? 'No closed chats.'
+            : convFilter === 'needs' ? 'Nothing is waiting for a reply. \u2713'
+            : 'No open chats right now. \u2713';
+          $('conversations').innerHTML = '<p class="empty">' + text + '</p>';
+          return;
+        }
+        $('conversations').innerHTML = list.map(c => `
+          <button type="button" class="conv${c.needs_reply ? ' needs' : ''}"
+                  data-id="${esc(c.id)}" data-token="${esc(c.visitor_token)}"
+                  data-name="${esc(c.name)}" data-email="${esc(c.email)}">
+            <span class="conv-main">
+              <strong>${esc(c.name)}</strong><br>
+              <small class="muted">${esc(c.email)}</small>
+              <span class="preview">${esc(c.last_message || 'No messages yet')}</span>
+            </span>
+            <span class="conv-side">
+              ${c.needs_reply ? '<span class="needs-pill">Needs reply</span><br>' : ''}
+              ${isClosed(c) ? '<span class="closed-pill">Closed</span><br>' : ''}
+              <small class="muted">${esc(ago(c.last_message_at || c.updated_at || c.created_at))}</small>
+            </span>
+          </button>`).join('');
+        $('conversations').querySelectorAll('button[data-id]').forEach(b =>
+          b.addEventListener('click', () =>
+            openThread(b.dataset.id, b.dataset.token, b.dataset.name, b.dataset.email)));
+      }
+
+      function closeThread() {
+        activeConversation = null;
+        $('thread').hidden = true;
+        $('conv-view').hidden = false;
+      }
+      on('thread-back', 'click', () => {
+        closeThread();
+        refresh(true);
+      });
+
+      function applyThreadState() {
+        const closed = !!(activeConversation && activeConversation.closed);
+        $('closed-note').hidden = !closed;
+        $('reply-form').hidden = closed;
+        $('thread-close').textContent = closed ? 'Reopen chat' : 'Close chat';
+      }
+
+      async function openThread(id, token, name, email) {
+        const known = conversations.find(c => c.id === id);
+        activeConversation = { id, token, name, email, closed: !!(known && isClosed(known)) };
+        applyThreadState();
+        $('conv-view').hidden = true;
+        $('thread').hidden = false;
+        $('thread-title').textContent = name || 'Conversation';
+        $('thread-contact').innerHTML = contactLinks(name, email, '');
+        $('thread-messages').innerHTML = '<p class="empty">Loading messages...</p>';
+        await loadThread();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      async function loadThread() {
+        if (!activeConversation) return;
+        const token = activeConversation.token;
+        try {
+          const response = await fetch('/api/chat?visitorToken=' + encodeURIComponent(token), { cache: 'no-store' });
+          const data = await response.json();
+          if (!activeConversation || activeConversation.token !== token) return;
+          if (!response.ok) {
+            setStatus(data.error || 'Could not load conversation messages.', 'err');
+            return;
+          }
+          const messages = Array.isArray(data.messages) ? data.messages : [];
+          const box = $('thread-messages');
+          const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+          box.innerHTML = '';
+          if (!messages.length) {
+            box.innerHTML = '<p class="empty">No messages yet.</p>';
+            return;
+          }
+          messages.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'msg' + (m.sender_role === 'admin' ? ' admin' : '');
+            const row = document.createElement('div');
+            row.className = 'msg-meta';
+            const meta = document.createElement('small');
+            meta.textContent = (m.sender_role === 'admin' ? 'Portexa' : 'Customer') + ' \u00B7 ' + fmtShort(m.created_at);
+            row.appendChild(meta);
+            if (m.id) {
+              const del = document.createElement('button');
+              del.type = 'button';
+              del.className = 'del';
+              del.textContent = 'Delete';
+              del.setAttribute('aria-label', 'Delete this message');
+              del.addEventListener('click', () => deleteMessage(m.id));
+              row.appendChild(del);
+            }
+            const body = document.createElement('span');
+            body.textContent = m.message || '';
+            div.append(row, body);
+            box.appendChild(div);
+          });
+          if (nearBottom || box.dataset.fresh !== token) box.scrollTop = box.scrollHeight;
+          box.dataset.fresh = token;
+        } catch (error) {
+          console.error('Conversation loading error:', error);
+          setStatus('Could not load messages: ' + error.message, 'err');
+        }
+      }
+
+      // ---------- chat actions: delete a message, close / reopen a chat ----------
+      async function chatAction(payload, okText) {
+        const s = await session();
+        if (!s) { showApp(false); setStatus('Please sign in again.', 'err'); return false; }
+        try {
+          const response = await fetch('/api/admin/reply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + s.access_token },
+            body: JSON.stringify(payload)
+          });
+          let data = {};
+          try { data = await response.json(); } catch (e) {}
+          if (!response.ok) {
+            setStatus(data.error || 'That action could not be completed.', 'err');
+            return false;
+          }
+          setStatus(okText, 'ok');
+          return true;
+        } catch (error) {
+          console.error('Chat action error:', error);
+          setStatus('That action could not be completed: ' + error.message, 'err');
+          return false;
+        }
+      }
+
+      async function deleteMessage(messageId) {
+        if (!activeConversation) return;
+        if (!window.confirm('Delete this message permanently? The customer will no longer see it either.')) return;
+        const ok = await chatAction(
+          { action: 'delete', conversationId: activeConversation.id, messageId },
+          'Message deleted.');
+        if (ok) { await loadThread(); refresh(true); }
+      }
+
+      on('thread-close', 'click', async () => {
+        if (!activeConversation) return;
+        const closing = !activeConversation.closed;
+        if (closing && !window.confirm('Close this chat? You can reopen it later, and it reopens by itself if the customer writes again.')) return;
+        const id = activeConversation.id;
+        const ok = await chatAction(
+          { action: closing ? 'close' : 'reopen', conversationId: id },
+          closing ? 'Chat closed.' : 'Chat reopened.');
+        if (!ok) return;
+        const c = conversations.find(x => x.id === id);
+        if (c) {
+          c.status = closing ? 'closed' : 'open';
+          c.closed = closing;
+          if (closing) c.needs_reply = false;
+        }
+        renderStats();
+        if (closing) {
+          closeThread();
+          renderConversations();
+        } else if (activeConversation) {
+          activeConversation.closed = false;
+          applyThreadState();
+        }
+        refresh(true);
+      });
+
+      // ---------- load everything ----------
+      async function refresh(quiet) {
+        if (refreshing) return;
+        refreshing = true;
+        $('refresh').classList.add('spin');
+        try {
+          const s = await session();
+          if (!s) {
+            showApp(false);
+            // keep an explanatory error (for example a timeout) visible
+            if (statusEl.className !== 'err') setStatus('Sign in with your administrator account.');
+            return;
+          }
+          showApp(true);
+          $('menu-email').textContent = (s.user && s.user.email) || 'Administrator';
+          if (!quiet) setStatus('Signed in. Loading dashboard data...');
+
+          const response = await fetch('/api/admin/data', {
+            headers: { Authorization: 'Bearer ' + s.access_token }
+          });
+          const raw = await response.text();
+          let data = {};
+          try { data = JSON.parse(raw); } catch (e) {}
+
+          if (!response.ok) {
+            setStatus('Could not load dashboard (HTTP ' + response.status + '): ' +
+              (data.error || raw.slice(0, 200) || 'No response from server'), 'err');
+            return;
+          }
+
+          orders = Array.isArray(data.orders) ? data.orders : [];
+          conversations = Array.isArray(data.conversations) ? data.conversations : [];
+          paymentAvailable = data.paymentColumns !== false;
+          $('warnings').innerHTML = (Array.isArray(data.warnings) ? data.warnings : [])
+            .map(w => `<div class="warning">${esc(w)}</div>`).join('');
+
+          renderStats();
+          // Do not redraw the order list while the admin is typing or choosing a status.
+          const busy = quiet && $('orders').contains(document.activeElement) ||
+                       quiet && document.activeElement === $('order-search');
+          if (!busy) renderOrders();
+          if (!activeConversation) renderConversations();
+          if (!quiet) setStatus('Admin data loaded.', 'ok');
+        } catch (error) {
+          console.error('Dashboard loading error:', error);
+          setStatus('Could not load dashboard data: ' + error.message, 'err');
+        } finally {
+          refreshing = false;
+          $('refresh').classList.remove('spin');
+        }
+      }
+
+      // ---------- sign in / out ----------
+      on('login-form', 'submit', async event => {
+        event.preventDefault();
+        const button = $('login');
+        button.disabled = true;
+        button.textContent = 'Signing in...';
+        try {
+          const { error } = await withTimeout(sb.auth.signInWithPassword({
+            email: $('email').value.trim(),
+            password: $('password').value
+          }), 20000, 'Sign-in took too long. Check your connection and try again.');
+          if (error) {
+            setStatus('Login failed: ' + error.message, 'err');
+            return;
+          }
+          $('password').value = '';
+          await refresh();
+        } catch (error) {
+          console.error('Login error:', error);
+          setStatus(error && error.message ? error.message : 'Login failed. Please try again.', 'err');
+        } finally {
+          button.disabled = false;
+          button.textContent = 'Sign in';
+        }
+      });
+
+      on('logout', 'click', async () => {
+        closeMenu();
+        const { error } = await sb.auth.signOut();
+        if (error) {
+          setStatus('Could not sign out: ' + error.message, 'err');
+          return;
+        }
+        closeThread();
+        orders = [];
+        conversations = [];
+        showApp(false);
+        setStatus('Signed out.');
+      });
+
+      on('refresh', 'click', () => refresh());
+      on('stat-needs-card', 'click', () => {
+        closeThread(); convFilter = 'needs'; renderConversations(); showTab('support');
+      });
+      on('stat-unpaid-card', 'click', () => {
+        orderFilter = 'awaiting'; renderOrders(); showTab('orders');
+      });
+      on('stat-paid-card', 'click', () => {
+        orderFilter = 'paid'; renderOrders(); showTab('orders');
+      });
+
+      // ---------- replying ----------
+      on('reply-form', 'submit', async event => {
+        event.preventDefault();
+        const message = $('reply-text').value.trim();
+        if (!message || !activeConversation) {
+          setStatus('Open a conversation before replying.', 'err');
+          return;
+        }
+        const button = $('reply-send');
+        button.disabled = true;
+        try {
+          const s = await session();
+          if (!s) {
+            setStatus('Please sign in again.', 'err');
+            showApp(false);
+            return;
+          }
+          const response = await fetch('/api/admin/reply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + s.access_token },
+            body: JSON.stringify({ conversationId: activeConversation.id, message })
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            setStatus(data.error || 'Reply could not be sent.', 'err');
+            return;
+          }
+          $('reply-text').value = '';
+          await loadThread();
+          setStatus('Reply sent.', 'ok');
+          refresh(true);
+        } catch (error) {
+          console.error('Reply error:', error);
+          setStatus('Could not send reply: ' + error.message, 'err');
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      await refresh();
+
+      // Open conversation refreshes quickly; the lists refresh quietly every 30 seconds.
+      setInterval(() => {
+        if (activeConversation && !document.hidden) loadThread().catch(console.error);
+      }, 10000);
+      setInterval(() => {
+        if (!document.hidden && !$('app-view').hidden) refresh(true);
+      }, 30000);
+    })();
+  </script>
+</body>
+</html>
