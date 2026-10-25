@@ -22,6 +22,12 @@ module.exports = async function handler(req, res) {
       }
       const inserted = await db.from('chat_messages').insert({ conversation_id: conversation.id, sender_role: 'customer', message }).select('id,message,sender_role,created_at').single();
       if (inserted.error) return jsonError(res, 500, 'Message could not be saved.');
+      if (conversation.status === 'closed') {
+        try {
+          const reopened = await db.from('chat_conversations').update({ status: 'open', updated_at: new Date().toISOString() }).eq('id', conversation.id);
+          if (reopened.error) console.error('Chat reopen failed:', reopened.error.message);
+        } catch (e) { console.error('Chat reopen failed:', e.message); }
+      }
       if (process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL) {
         try {
           const resend = new Resend(process.env.RESEND_API_KEY);
