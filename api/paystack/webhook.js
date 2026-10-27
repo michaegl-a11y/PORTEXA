@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { supabaseAdmin } = require('../_lib');
+const { supabaseAdmin, notifyNewOrder } = require('../_lib');
 
 // Read the request exactly as Paystack sent it, so the signature check matches.
 function readRawBody(req) {
@@ -30,7 +30,9 @@ async function handler(req, res) {
     const { data: order } = await db.from('orders').select('id,subtotal,currency,payment_status,payment_reference').eq('payment_reference', t.reference).maybeSingle();
     if (!order || order.payment_status === 'paid') return res.status(200).send('No action');
     if (t.status === 'success' && t.reference === order.payment_reference && t.currency === order.currency && Number(t.amount) === Number(order.subtotal) * 100) {
-      await db.from('orders').update({ payment_status: 'paid', amount_paid: Number(t.amount), paid_at: t.paid_at || new Date().toISOString(), status: 'confirmed' }).eq('id', order.id).neq('payment_status', 'paid');
+      const { data: updatedRows } = await db.from('orders').update({ payment_status: 'paid', amount_paid: Number(t.amount), paid_at: t.paid_at || new Date().toISOString(), status: 'confirmed' }).eq('id', order.id).neq('payment_status', 'paid')
+        .select('id,items,subtotal,payment_reference,customer_name,customer_email,customer_phone,delivery_address,notes');
+      if (updatedRows && updatedRows.length) await notifyNewOrder(updatedRows[0]);
     }
     return res.status(200).send('OK');
   } catch (error) {
