@@ -43,4 +43,48 @@ const CATALOG = {
   'blue-liner': { name: 'Blue Panty Liner', detail: '160 mm · 30 pieces per pack', price: 3500 }
 };
 function jsonError(res, status, message) { return res.status(status).json({ error: message }); }
-module.exports = { supabaseAdmin, supabasePublic, getUserFromRequest, isAdmin, CATALOG, jsonError };
+// Emails the Portexa inbox when an order is newly marked as paid.
+// Never throws: a failed email must not break payment confirmation.
+async function notifyNewOrder(order) {
+  try {
+    if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
+      console.error('Order email skipped: email is not configured.');
+      return;
+    }
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const money = (n) => '\u20a6' + Number(n || 0).toLocaleString('en-NG');
+    const items = Array.isArray(order.items) ? order.items : [];
+    const lines = items.map((i) => `- ${i.name} x ${i.quantity} (${money(i.line_total)})`).join('\n');
+    const text = [
+      'A new Portexa order has been paid.',
+      '',
+      `Reference: ${order.payment_reference}`,
+      `Amount paid: ${money(order.subtotal)}`,
+      '',
+      'Items:',
+      lines || '(no items listed)',
+      '',
+      'Customer:',
+      `Name: ${order.customer_name}`,
+      `Email: ${order.customer_email}`,
+      `Phone: ${order.customer_phone}`,
+      `Delivery address: ${order.delivery_address}`,
+      order.notes ? `Notes: ${order.notes}` : 'Notes: none',
+      '',
+      'Delivery charges are confirmed separately. Open the admin dashboard to manage this order.'
+    ].join('\n');
+    const { error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL,
+      to: [process.env.PORTEXA_RECEIVING_EMAIL || 'Portexa09@gmail.com'],
+      replyTo: String(order.customer_email || '').slice(0, 254) || undefined,
+      subject: `New paid Portexa order - ${money(order.subtotal)} (${order.payment_reference})`,
+      text
+    });
+    if (error) console.error('Order email failed:', error.message || error);
+  } catch (e) {
+    console.error('Order email error:', e.message);
+  }
+}
+
+module.exports = { notifyNewOrder, supabaseAdmin, supabasePublic, getUserFromRequest, isAdmin, CATALOG, jsonError };
