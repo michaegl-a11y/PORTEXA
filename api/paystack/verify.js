@@ -1,4 +1,4 @@
-const { supabaseAdmin, jsonError } = require('../_lib');
+const { supabaseAdmin, jsonError, notifyNewOrder } = require('../_lib');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -27,16 +27,18 @@ module.exports = async function handler(req, res) {
       }
       return res.status(200).json({ success: false, message: 'Payment has not been confirmed. Do not repeat payment until you check with Portexa.' });
     }
-    const { error: updateError } = await db.from('orders').update({
+    const { data: updatedRows, error: updateError } = await db.from('orders').update({
       payment_status: 'paid',
       amount_paid: Number(transaction.amount),
       paid_at: transaction.paid_at || new Date().toISOString(),
       status: 'confirmed'
-    }).eq('id', order.id).neq('payment_status', 'paid');
+    }).eq('id', order.id).neq('payment_status', 'paid')
+      .select('id,items,subtotal,payment_reference,customer_name,customer_email,customer_phone,delivery_address,notes');
     if (updateError) {
       console.error('Order payment update failed:', updateError.message);
       return jsonError(res, 500, 'Payment was verified but the order update needs attention. Contact Portexa with your payment reference.');
     }
+    if (updatedRows && updatedRows.length) await notifyNewOrder(updatedRows[0]);
     return res.status(200).json({ success: true, orderId: order.id });
   } catch (error) {
     console.error('Verify error:', error.message);
