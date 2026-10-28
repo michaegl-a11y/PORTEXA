@@ -4,254 +4,184 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#075b4b">
-
   <title>Portexa | Everyday Care, Thoughtfully Made</title>
-
-  <meta
-    name="description"
-    content="Explore Portexa sanitary pads and panty liners. Find everyday care products designed for different needs, with delivery available across Nigeria."
-  >
-
+  <meta name="description" content="Explore Portexa sanitary pads and panty liners. Find everyday care products designed for different needs, with delivery available across Nigeria.">
   <link rel="stylesheet" href="/assets/site.css">
-</head>
+  <style>
+    :root{--hp-green:#17483b;--hp-deep:#10372d;--hp-gold:#ffbc0f;--hp-cream:#faf6f1}
+    .hp-serif{font-family:Georgia,"Times New Roman",serif;font-weight:400}
+    .hp-btn{display:inline-block;border-radius:999px;padding:13px 24px;font-size:1rem;font-weight:600;text-decoration:none;background:var(--hp-gold);color:var(--hp-deep);border:0;cursor:pointer}
+    .hp-btn:hover{filter:brightness(.96)}
+    .hp-btn:focus-visible,.hp-ctl button:focus-visible,.hp-sb:focus-visible{outline:3px solid #fff;outline-offset:2px}
 
+    .hp-hero{position:relative;overflow:hidden;background:var(--hp-deep);min-height:480px;height:78vh;max-height:720px;color:#fff}
+    .hp-slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 22px 84px;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility .7s;
+      background-image:linear-gradient(to top,rgba(8,30,24,.82) 0%,rgba(8,30,24,.45) 45%,rgba(8,30,24,.15) 100%),var(--img,none),linear-gradient(135deg,#17483b 0%,#0e3a2f 55%,#1f5c4b 100%);
+      background-size:cover;background-position:center 25%;background-repeat:no-repeat}
+    .hp-slide.on{opacity:1;visibility:visible}
+    .hp-tx{max-width:560px}
+    .hp-welcome{font-size:1.05rem;margin:0 0 8px;color:#ffd76a}
+    .hp-kick{font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;margin:0 0 12px;color:#f1e9e0}
+    .hp-h1{font-size:2.3rem;line-height:1.12;margin:0 0 14px;color:#fff}
+    .hp-lead{font-size:1.02rem;line-height:1.55;margin:0 0 20px;color:#f1e9e0}
+    .hp-ctl{position:absolute;left:0;right:0;bottom:22px;display:flex;align-items:center;justify-content:center;gap:10px}
+    .hp-ctl button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.75);background:rgba(0,0,0,.28);color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+    .hp-ctl .hp-dot{width:11px;height:11px;border:0;background:rgba(255,255,255,.5)}
+    .hp-ctl .hp-dot.on{background:var(--hp-gold)}
+
+    .hp-sec{padding:44px 20px}
+    .hp-wrap{max-width:1100px;margin:0 auto}
+    .hp-eb{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#8a6a4f;margin:0 0 8px}
+    .hp-h2{font-size:1.9rem;line-height:1.2;margin:0 0 14px;color:var(--hp-deep)}
+    .hp-p{font-size:1.05rem;line-height:1.65;margin:0 0 14px;color:#41584f}
+    .hp-intro{background:#fff}
+    .hp-intro .hp-wrap{display:grid;grid-template-columns:1fr;gap:24px;align-items:center}
+    .hp-fig{margin:0;border-radius:14px;overflow:hidden;aspect-ratio:4/3;background:#efe6dc}
+    .hp-fig img{width:100%;height:100%;object-fit:cover;display:block}
+    .hp-intro.no-img .hp-wrap{grid-template-columns:1fr;max-width:720px;text-align:center}
+    .hp-intro.no-img .hp-fig{display:none}
+
+    .hp-steps{background:var(--hp-cream)}
+    .hp-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:22px}
+    .hp-step{background:#fff;border:1px solid #eadfd3;border-radius:14px;padding:18px;display:flex;gap:14px;align-items:flex-start}
+    .hp-n{flex:0 0 34px;height:34px;border-radius:50%;background:var(--hp-green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600}
+    .hp-step p{margin:0;font-size:1rem;line-height:1.55;color:#2f4a41}
+
+    .hp-social{background:var(--hp-green);color:#fff;text-align:center;padding:44px 20px}
+    .hp-social h2{color:#fff;margin:0 0 8px;font-size:1.8rem}
+    .hp-social p{margin:0 0 18px;color:#cfe3d9}
+    .hp-sb{display:inline-flex;align-items:center;gap:9px;border:1px solid #fff;color:#fff;text-decoration:none;border-radius:999px;padding:11px 20px;font-size:1rem;margin:5px}
+    .hp-sb:hover{background:rgba(255,255,255,.12)}
+
+    @media (min-width:860px){
+      .hp-slide{padding:48px 7vw 96px}
+      .hp-h1{font-size:3.4rem}
+      .hp-lead{font-size:1.15rem}
+      .hp-sec{padding:72px 28px}
+      .hp-h2{font-size:2.3rem}
+      .hp-intro .hp-wrap{grid-template-columns:1fr 1fr;gap:56px}
+      .hp-grid{grid-template-columns:repeat(4,1fr)}
+      .hp-step{flex-direction:column}
+    }
+    @media (prefers-reduced-motion:reduce){.hp-slide{transition:none}}
+  </style>
+</head>
 <body>
 
-  <!-- Announcement bar -->
-  <div class="topline">
-    Thoughtfully made everyday care · Delivery available across Nigeria
-  </div>
+  <div class="topline">Thoughtfully made everyday care · Delivery available across Nigeria</div>
 
-  <!-- Navigation -->
-  <header>
-    <nav class="nav site-nav" aria-label="Main navigation">
+  <script src="/assets/header.js" data-part="header"></script>
 
-      <a class="brand" href="/" aria-label="Portexa home">
-        <img
-          src="/images/portexa-logo-green.png"
-          alt="Portexa"
-          style="height:40px;width:auto;max-width:170px;object-fit:contain"
-          onload="
-            this.nextElementSibling.style.display='none';
-            this.nextElementSibling.nextElementSibling.style.display='none';
-          "
-          onerror="
-            this.style.display='none';
-            this.nextElementSibling.style.display='inline-flex';
-          "
-        >
-
-        <span class="brand-mark" style="display:none">P</span>
-        <span>PORTEXA</span>
-      </a>
-
-      <div class="navlinks">
-        <a href="/">Home</a>
-        <a href="/shop.html">Shop</a>
-        <a href="/about.html">About</a>
-        <a href="/contact.html">Contact</a>
-        <a href="/account.html">Account</a>
-
-        <a href="/cart.html">
-          Cart
-          <span class="cart-badge" data-cart-count>0</span>
-        </a>
-
-        <a class="nav-cta" href="/shop.html">
-          Shop products ↗
-        </a>
+  <main id="home">
+    <section class="hp-hero" id="hp-hero" role="region" aria-roledescription="carousel" aria-label="Portexa highlights">
+      <div class="hp-slide on" style="--img:url(/images/hero/slide-1.jpg)" role="group" aria-roledescription="slide" aria-label="1 of 3">
+        <div class="hp-tx">
+          <p class="hp-welcome">Welcome to Portexa</p>
+          <p class="hp-kick">Everyday care, thoughtfully made</p>
+          <h1 class="hp-h1 hp-serif">Feel fresh.<br>Move confidently.</h1>
+          <p class="hp-lead">Sanitary pads and panty liners for every part of your day, from daytime to overnight, with delivery across Nigeria.</p>
+          <a class="hp-btn" href="/shop.html">Shop now</a>
+        </div>
       </div>
+      <div class="hp-slide" style="--img:url(/images/hero/slide-2.jpg)" role="group" aria-roledescription="slide" aria-label="2 of 3">
+        <div class="hp-tx">
+          <p class="hp-kick" style="color:#ffd76a">Delivery</p>
+          <h2 class="hp-h1 hp-serif">Delivered across Nigeria</h2>
+          <p class="hp-lead">Order online and have your Portexa essentials brought to you.</p>
+          <a class="hp-btn" href="/shop.html">Shop now</a>
+        </div>
+      </div>
+      <div class="hp-slide" style="--img:url(/images/hero/slide-3.jpg)" role="group" aria-roledescription="slide" aria-label="3 of 3">
+        <div class="hp-tx">
+          <p class="hp-kick" style="color:#ffd76a">Payment</p>
+          <h2 class="hp-h1 hp-serif">Pay securely online</h2>
+          <p class="hp-lead">Check out and pay with Paystack.</p>
+          <a class="hp-btn" href="/shop.html">Shop now</a>
+        </div>
+      </div>
+      <div class="hp-ctl">
+        <button type="button" id="hp-prev" aria-label="Previous slide">&#8249;</button>
+        <button type="button" class="hp-dot on" aria-label="Go to slide 1"></button>
+        <button type="button" class="hp-dot" aria-label="Go to slide 2"></button>
+        <button type="button" class="hp-dot" aria-label="Go to slide 3"></button>
+        <button type="button" id="hp-next" aria-label="Next slide">&#8250;</button>
+        <button type="button" id="hp-pause" aria-label="Pause slideshow">&#10074;&#10074;</button>
+      </div>
+    </section>
 
-    </nav>
-  </header>
-
-  <main>
-
-    <!-- Hero section -->
-    <section class="hero" id="home">
-
-      <div class="hero-inner">
-
+    <section class="hp-sec hp-intro" id="hp-intro">
+      <div class="hp-wrap">
         <div>
-
-          <div class="eyebrow">
-            Everyday care, thoughtfully made
-          </div>
-
-          <h1>
-            Feel fresh.<br>
-            <em>Move confidently.</em>
-          </h1>
-
-          <p class="hero-copy">
-            Explore Portexa sanitary pads and panty liners designed
-            for different everyday needs—from daytime comfort to
-            overnight coverage.
-          </p>
-
-          <div class="hero-actions">
-
-            <a class="button" href="/shop.html">
-              Explore the collection
-              <span aria-hidden="true">→</span>
-            </a>
-
-            <a class="button secondary" href="/contact.html">
-              Contact Portexa
-            </a>
-
-          </div>
-
-          <div class="trust-note">
-            <span class="trust-icon">✓</span>
-            Built on trust, delivered with excellence.
-          </div>
-
+          <p class="hp-eb">Welcome to Portexa</p>
+          <h2 class="hp-h2 hp-serif">Comfort that fits your day</h2>
+          <p class="hp-p">Portexa brings you sanitary pads and panty liners for different everyday needs. Built on trust, delivered with excellence.</p>
+          <a class="hp-btn" style="background:transparent;border:1px solid var(--hp-green);color:var(--hp-green)" href="/about.html">About Portexa</a>
         </div>
-
-        <!-- Decorative hero artwork -->
-        <div
-          class="hero-art"
-          aria-label="Portexa personal care collection"
-        >
-
-          <div class="halo"></div>
-
-          <div class="floating-pill pill-one">
-            Thoughtful everyday care ✦
-          </div>
-
-          <div class="display-card">
-
-            <div class="display-label">
-              PORTEXA · PERSONAL CARE
-            </div>
-
-            <div class="pad-illustration">
-
-              <span class="sparkle one">✦</span>
-              <span class="sparkle two">✧</span>
-
-              <div class="pad-shape"></div>
-
-            </div>
-
-            <p>Comfort that fits your day</p>
-
-          </div>
-
-          <div class="floating-pill pill-two">
-            Delivery across Nigeria 🇳🇬
-          </div>
-
-        </div>
-
+        <figure class="hp-fig"><img src="/images/about/lifestyle.jpg" alt="" onerror="document.getElementById('hp-intro').classList.add('no-img')"></figure>
       </div>
-
     </section>
 
-    <!-- Benefits -->
-    <section class="benefits">
-
-      <div class="benefits-inner">
-
-        <div class="benefit">
-          <span>♡</span>
-          Options for different flow needs
+    <section class="hp-sec hp-steps">
+      <div class="hp-wrap">
+        <p class="hp-eb">Ordering</p>
+        <h2 class="hp-h2 hp-serif">How ordering works</h2>
+        <div class="hp-grid">
+          <div class="hp-step"><div class="hp-n">1</div><p>Choose your products in the shop and add them to your cart.</p></div>
+          <div class="hp-step"><div class="hp-n">2</div><p>Check out with your name, phone number and delivery address.</p></div>
+          <div class="hp-step"><div class="hp-n">3</div><p>Pay securely online with Paystack.</p></div>
+          <div class="hp-step"><div class="hp-n">4</div><p>We deliver across Nigeria. Delivery charges are confirmed separately.</p></div>
         </div>
-
-        <div class="benefit">
-          <span>✓</span>
-          Secure online payment available
-        </div>
-
-        <div class="benefit">
-          <span>⌂</span>
-          Nationwide delivery available
-        </div>
-
+        <p class="hp-p" style="margin-top:22px">Questions? Use the chat on this site or message us on WhatsApp.</p>
       </div>
-
     </section>
 
-    <!-- Collection introduction -->
-    <section class="page-wrap">
-
-      <div class="page-intro">
-
-        <div class="eyebrow">
-          The Portexa collection
-        </div>
-
-        <h2>Everyday care, made simpler.</h2>
-
-        <p>
-          Choose from our four sanitary-pad and panty-liner products.
-          Select a product to see its details, add it to your cart,
-          and check out when you are ready.
-        </p>
-
-        <div class="page-actions">
-
-          <a class="button" href="/shop.html">
-            Browse all products
-          </a>
-
-          <a class="button secondary" href="/about.html">
-            About Portexa
-          </a>
-
-        </div>
-
-      </div>
-
+    <section class="hp-social">
+      <h2 class="hp-serif">Follow Portexa</h2>
+      <p>See what we are sharing on social media.</p>
+      <a class="hp-sb" href="https://www.instagram.com/portexa.finds" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a>
+      <a class="hp-sb" href="https://www.tiktok.com/@portexa" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.4 2.6 2.1 4.2 5 4.4"/></svg>TikTok</a>
     </section>
-
   </main>
 
-  <!-- Footer -->
-  <footer class="site-footer">
+  <script src="/assets/header.js" data-part="footer"></script>
 
-    <div class="footer-inner">
-
-      <div>
-        <strong>PORTEXA</strong>
-        · Built on trust, delivered with excellence.
-      </div>
-
-      <div>
-        © <span data-year></span>
-        Portexa. All rights reserved.
-      </div>
-
-      <div>
-        <a href="/contact.html">Email us</a>
-        ·
-        <a
-          href="https://wa.me/2349138176684"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          WhatsApp
-        </a>
-      </div>
-
-    </div>
-
-  </footer>
-
-  <!-- Current year -->
   <script>
-    document.querySelectorAll('[data-year]').forEach(function (element) {
-      element.textContent = new Date().getFullYear();
-    });
+    (function () {
+      var hero = document.getElementById('hp-hero');
+      var slides = hero.querySelectorAll('.hp-slide');
+      var dots = hero.querySelectorAll('.hp-dot');
+      var pauseBtn = document.getElementById('hp-pause');
+      var i = 0, timer = null, paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function show(n) {
+        i = (n + slides.length) % slides.length;
+        slides.forEach(function (s, k) { s.classList.toggle('on', k === i); });
+        dots.forEach(function (d, k) { d.classList.toggle('on', k === i); });
+      }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      function start() { stop(); if (!paused) timer = setInterval(function () { show(i + 1); }, 6500); }
+      function setPaused(p) {
+        paused = p;
+        pauseBtn.innerHTML = p ? '&#9654;' : '&#10074;&#10074;';
+        pauseBtn.setAttribute('aria-label', p ? 'Play slideshow' : 'Pause slideshow');
+        start();
+      }
+      document.getElementById('hp-prev').addEventListener('click', function () { show(i - 1); start(); });
+      document.getElementById('hp-next').addEventListener('click', function () { show(i + 1); start(); });
+      dots.forEach(function (d, k) { d.addEventListener('click', function () { show(k); start(); }); });
+      pauseBtn.addEventListener('click', function () { setPaused(!paused); });
+      hero.addEventListener('mouseenter', stop);
+      hero.addEventListener('mouseleave', start);
+      var x0 = null;
+      hero.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      hero.addEventListener('touchend', function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0; x0 = null;
+        if (Math.abs(dx) > 50) { show(dx < 0 ? i + 1 : i - 1); start(); }
+      }, { passive: true });
+      if (paused) setPaused(true); else start();
+    })();
   </script>
-
-  <!-- Shared shopping cart functionality -->
   <script src="/assets/cart.js"></script>
-
-  <!-- Shared chat functionality -->
   <script src="/assets/chat.js"></script>
-
 </body>
 </html>
