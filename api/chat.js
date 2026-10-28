@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { Resend } = require('resend');
-const { supabaseAdmin, jsonError } = require('./_lib');
+const { supabaseAdmin, jsonError, renderEmail, siteUrl } = require('./_lib');
 
 module.exports = async function handler(req, res) {
   try {
@@ -35,7 +35,17 @@ module.exports = async function handler(req, res) {
             from: process.env.RESEND_FROM_EMAIL,
             to: [process.env.PORTEXA_RECEIVING_EMAIL || 'Portexa09@gmail.com'],
             subject: `New Portexa chat message from ${name}`,
-            text: `Name: ${name}\nEmail: ${email}\n\n${message}\n\nConversation ID: ${conversation.id}`
+            text: `Name: ${name}\nEmail: ${email}\n\n${message}\n\nConversation ID: ${conversation.id}`,
+            html: renderEmail({
+              title: 'New chat message',
+              subtitle: 'From the website chat',
+              sections: [
+                { label: 'From', type: 'box', lines: [name, email] },
+                { label: 'Message', type: 'message', text: message }
+              ],
+              button: { label: 'Open admin dashboard', href: `${siteUrl()}/admin.html` },
+              note: `Conversation ID: ${conversation.id}`
+            })
           });
         } catch (e) { console.error('Chat email notification failed:', e.message); }
       }

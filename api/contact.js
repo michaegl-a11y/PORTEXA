@@ -1,5 +1,5 @@
 const { Resend } = require('resend');
-const { jsonError } = require('./_lib');
+const { jsonError, renderEmail, isEmailAddress } = require('./_lib');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -14,7 +14,16 @@ module.exports = async function handler(req, res) {
       to: [process.env.PORTEXA_RECEIVING_EMAIL || 'Portexa09@gmail.com'],
       replyTo: String(email).slice(0, 254),
       subject: `Portexa website enquiry from ${String(name).slice(0, 120)}`,
-      text: `Name: ${name}\nEmail: ${email}\n\n${message}`
+      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+      html: renderEmail({
+        title: 'New website enquiry',
+        subtitle: 'From the contact form',
+        sections: [
+          { label: 'From', type: 'box', lines: [String(name).slice(0, 120), String(email).slice(0, 254)] },
+          { label: 'Message', type: 'message', text: message }
+        ],
+        button: isEmailAddress(email) ? { label: `Reply to ${String(name).slice(0, 60)}`, href: `mailto:${String(email).slice(0, 254)}` } : null
+      })
     });
     if (error) return jsonError(res, 502, 'Email could not be sent. Please try WhatsApp instead.');
     return res.status(200).json({ success: true });
