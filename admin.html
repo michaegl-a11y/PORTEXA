@@ -161,7 +161,7 @@
     @media (min-width: 700px) { .stats { grid-template-columns: repeat(4, 1fr); } }
 
     /* ---------- Tabs ---------- */
-    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
     .tab { background: #fff; color: var(--ink); border: 1px solid var(--line); }
     .tab:hover { background: #fff; border-color: var(--green); }
     .tab.active { background: var(--green); color: #fff; border-color: var(--green); }
@@ -254,6 +254,29 @@
     .empty { color: var(--muted); padding: 10px 0; text-align: center; }
     h2 { font-size: 1.15rem; margin: 0 0 12px; }
     .ver { text-align: center; color: var(--muted); font-size: .72rem; margin: 22px 0 0; opacity: .7; }
+    /* ---------- Products ---------- */
+    .prod-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+    .prod-head h2 { margin: 0; font-size: 1.15rem; }
+    .prod-sum { color: var(--muted); font-size: .85rem; margin: 0 0 10px; }
+    .prod { border: 1px solid var(--line); border-radius: 16px; padding: 12px; margin-bottom: 12px; background: #fff; }
+    .prod.off { background: #fafbfa; }
+    .prod-main { display: flex; gap: 12px; align-items: center; }
+    .thumb { flex: 0 0 60px; width: 60px; height: 60px; border-radius: 10px; background: var(--bg); border: 1px dashed #b9cbc1; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: .65rem; color: var(--muted); text-align: center; line-height: 1.2; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .prod-info { flex: 1 1 auto; min-width: 0; }
+    .prod-name { font-weight: 800; margin: 0 0 2px; overflow-wrap: anywhere; }
+    .prod-price { font-weight: 800; color: var(--green); margin: 4px 0 0; }
+    .tag { display: inline-block; font-size: .7rem; font-weight: 700; border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
+    .tag.so { background: var(--red-bg); color: var(--red); }
+    .tag.hid { background: var(--amber-bg); color: var(--amber); }
+    .prod-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+    button.sw { background: none; color: var(--ink); min-height: 44px; padding: 0; border-radius: 0; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: .88rem; }
+    button.sw:hover { background: none; }
+    .track { width: 44px; height: 26px; border-radius: 13px; background: #c4d0ca; position: relative; flex: 0 0 44px; transition: background .15s; }
+    .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+    button.sw[aria-checked="true"] .track { background: var(--ok); }
+    button.sw[aria-checked="true"] .track::after { left: 21px; }
+    .help { color: var(--muted); font-size: .8rem; margin: -8px 0 14px; font-weight: 400; }
   </style>
 </head>
 <body>
@@ -308,6 +331,7 @@
       <div class="tabs">
         <button class="tab active" id="tab-orders" type="button">Orders <span id="orders-count" style="opacity:.75"></span></button>
         <button class="tab" id="tab-support" type="button">Support <span id="support-badge" class="count" hidden>0</span></button>
+        <button class="tab" id="tab-products" type="button">Products</button>
       </div>
 
       <!-- ORDERS -->
@@ -341,8 +365,52 @@
           </form>
         </div>
       </section>
+
+      <!-- PRODUCTS -->
+      <section id="panel-products" class="card" hidden>
+        <div id="prod-view">
+          <div class="prod-head">
+            <h2>Products</h2>
+            <button id="prod-add" type="button" class="small">+ Add product</button>
+          </div>
+          <div class="warning">The shop still shows its built-in product list for now. Changes saved here do not appear on the shop yet.</div>
+          <p class="prod-sum" id="prod-sum"></p>
+          <div class="chips" id="prod-chips"></div>
+          <div id="prod-list"><p class="muted">Open this tab to load products.</p></div>
+        </div>
+
+        <div id="prod-form-view" hidden>
+          <button id="pf-back" class="ghost small" type="button">← Back to products</button>
+          <h2 id="pf-title" style="margin:12px 0 14px;font-size:1.15rem">Edit product</h2>
+          <label>Name
+            <input id="pf-name" maxlength="120" autocomplete="off">
+          </label>
+          <label>Category
+            <select id="pf-category"></select>
+          </label>
+          <label id="pf-newcat-wrap" hidden>New category name
+            <input id="pf-newcat" maxlength="40" autocomplete="off">
+          </label>
+          <label>Pack details
+            <input id="pf-detail" maxlength="200" autocomplete="off" placeholder="For example: 245 mm · 10 pieces per pack">
+          </label>
+          <label>Price (₦)
+            <input id="pf-price" inputmode="numeric" autocomplete="off" placeholder="2500">
+          </label>
+          <label>Photo path or https link
+            <input id="pf-image" maxlength="400" autocomplete="off" placeholder="/images/products/white-day-pad.jpg">
+          </label>
+          <p class="help">Photo upload is coming later. For now paste the path of a photo already on the site, or an https link.</p>
+          <label>Photo description
+            <input id="pf-alt" maxlength="200" autocomplete="off" placeholder="Short description of the photo">
+          </label>
+          <button id="pf-available" class="sw" type="button" role="switch" aria-checked="true"><span class="track"></span><span class="lab">Available</span></button>
+          <button id="pf-visible" class="sw" type="button" role="switch" aria-checked="true"><span class="track"></span><span class="lab">Show on the shop</span></button>
+          <button id="pf-save" type="button" class="full" style="margin-top:16px">Save product</button>
+        </div>
+      </section>
     </section>
-    <p class="ver">Admin v3.1</p>
+    <p class="ver">Admin v3.2</p>
   </main>
 
   <script>
@@ -378,6 +446,10 @@
       let convFilter = 'open';
       let activeConversation = null;   // { id, token, name, email, closed }
       let refreshing = false;
+      let products = [];
+      let prodFilter = 'all';
+      let prodLoaded = false;
+      let editingId = null;
       let paymentAvailable = true;   // false when the database has no payment columns yet
 
       // ---------- helpers ----------
@@ -449,14 +521,17 @@
       });
       on('menu-refresh', 'click', () => { closeMenu(); refresh(); });
       function showTab(name) {
-        const isOrders = name === 'orders';
-        $('panel-orders').hidden = !isOrders;
-        $('panel-support').hidden = isOrders;
-        $('tab-orders').classList.toggle('active', isOrders);
-        $('tab-support').classList.toggle('active', !isOrders);
+        $('panel-orders').hidden = name !== 'orders';
+        $('panel-support').hidden = name !== 'support';
+        $('panel-products').hidden = name !== 'products';
+        $('tab-orders').classList.toggle('active', name === 'orders');
+        $('tab-support').classList.toggle('active', name === 'support');
+        $('tab-products').classList.toggle('active', name === 'products');
+        if (name === 'products' && $('prod-form-view').hidden) loadProducts();
       }
       on('tab-orders', 'click', () => showTab('orders'));
       on('tab-support', 'click', () => showTab('support'));
+      on('tab-products', 'click', () => showTab('products'));
 
       // ---------- start-up ----------
       try {
@@ -958,6 +1033,202 @@
           setStatus('Could not send reply: ' + error.message, 'err');
         } finally {
           button.disabled = false;
+        }
+      });
+
+      // ---------- products ----------
+      const safeSrc = p => (typeof p === 'string' && (p.startsWith('/images/') || p.startsWith('https://'))) ? p : '';
+      const busyProducts = new Set();
+
+      async function productFetch(method, payload, query) {
+        const s = await session();
+        if (!s) {
+          showApp(false);
+          setStatus('Please sign in again.', 'err');
+          throw new Error('Please sign in again.');
+        }
+        const headers = { Authorization: 'Bearer ' + s.access_token };
+        if (payload) headers['Content-Type'] = 'application/json';
+        const response = await fetch('/api/catalog' + (query || ''), {
+          method,
+          headers,
+          body: payload ? JSON.stringify(payload) : undefined
+        });
+        let data = {};
+        try { data = await response.json(); } catch (e) {}
+        if (!response.ok) throw new Error(data.error || 'Request failed (HTTP ' + response.status + ').');
+        return data;
+      }
+
+      async function loadProducts() {
+        try {
+          const data = await productFetch('GET', null, '?all=1');
+          products = Array.isArray(data.products) ? data.products : [];
+          prodLoaded = true;
+          renderProducts();
+        } catch (error) {
+          $('prod-list').innerHTML = '<p class="muted">Could not load products: ' + esc(error.message) + '</p>';
+          setStatus('Could not load products: ' + error.message, 'err');
+        }
+      }
+
+      const catOf = p => p.category || 'General';
+      function categories() { return Array.from(new Set(products.map(catOf))); }
+
+      function productCard(p) {
+        const src = safeSrc(p.image);
+        const thumb = src
+          ? `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">`
+          : 'No photo';
+        const tags = (p.available ? '' : '<span class="tag so">Sold out</span>') +
+                     (p.visible ? '' : '<span class="tag hid">Hidden</span>');
+        return `<div class="prod${p.available ? '' : ' off'}">
+          <div class="prod-main">
+            <div class="thumb">${thumb}</div>
+            <div class="prod-info">
+              <p class="prod-name">${esc(p.name)}${tags}</p>
+              <small class="muted">${esc(p.detail || '')}</small>
+              <p class="prod-price">${money(p.price)}</p>
+            </div>
+          </div>
+          <div class="prod-foot">
+            <button class="sw" type="button" role="switch" aria-checked="${p.available ? 'true' : 'false'}" data-act="toggle" data-id="${esc(p.id)}"><span class="track"></span><span class="lab">${p.available ? 'Available' : 'Sold out'}</span></button>
+            <button class="ghost small" type="button" data-act="edit" data-id="${esc(p.id)}">Edit</button>
+          </div>
+        </div>`;
+      }
+
+      function renderProducts() {
+        const cats = categories();
+        if (prodFilter !== 'all' && !cats.includes(prodFilter)) prodFilter = 'all';
+        const count = c => products.filter(p => c === 'all' || catOf(p) === c).length;
+        $('prod-chips').innerHTML = ['all'].concat(cats).map(c =>
+          `<button class="chip${c === prodFilter ? ' active' : ''}" type="button" data-pc="${esc(c)}">${c === 'all' ? 'All' : esc(c)}<span>${count(c)}</span></button>`).join('');
+        const avail = products.filter(p => p.available).length;
+        const hidden = products.filter(p => !p.visible).length;
+        $('prod-sum').textContent = products.length
+          ? `${avail} available · ${products.length - avail} sold out · ${hidden} hidden` : '';
+        const shown = products.filter(p => prodFilter === 'all' || catOf(p) === prodFilter);
+        $('prod-list').innerHTML = shown.length
+          ? shown.map(productCard).join('')
+          : '<p class="muted">No products here yet. Tap “Add product”.</p>';
+      }
+
+      async function toggleAvailability(id) {
+        const p = products.find(x => x.id === id);
+        if (!p || busyProducts.has(id)) return;
+        busyProducts.add(id);
+        const next = !p.available;
+        p.available = next;
+        renderProducts();
+        try {
+          await productFetch('PATCH', { id, available: next });
+          setStatus(p.name + (next ? ' is available again.' : ' is marked sold out.'), 'ok');
+        } catch (error) {
+          p.available = !next;
+          renderProducts();
+          setStatus(error.message, 'err');
+        } finally {
+          busyProducts.delete(id);
+        }
+      }
+
+      function setSwitch(id, on, onText, offText) {
+        const el = $(id);
+        el.setAttribute('aria-checked', on ? 'true' : 'false');
+        el.querySelector('.lab').textContent = on ? onText : offText;
+      }
+      const switchOn = id => $(id).getAttribute('aria-checked') === 'true';
+
+      function fillCategorySelect(selected) {
+        const cats = categories();
+        if (selected && !cats.includes(selected)) cats.push(selected);
+        if (!cats.length) cats.push('General');
+        $('pf-category').innerHTML = cats.map(c => `<option value="${esc(c)}"${c === selected ? ' selected' : ''}>${esc(c)}</option>`).join('') +
+          '<option value="__new">+ New category</option>';
+        $('pf-newcat-wrap').hidden = true;
+        $('pf-newcat').value = '';
+      }
+
+      function openProductForm(p) {
+        editingId = p ? p.id : null;
+        $('pf-title').textContent = p ? 'Edit product' : 'Add product';
+        $('pf-name').value = p ? p.name : '';
+        fillCategorySelect(p ? catOf(p) : (prodFilter !== 'all' ? prodFilter : 'General'));
+        $('pf-detail').value = p ? (p.detail || '') : '';
+        $('pf-price').value = p ? String(p.price) : '';
+        $('pf-image').value = p ? (p.image || '') : '';
+        $('pf-alt').value = p ? (p.alt || '') : '';
+        setSwitch('pf-available', p ? !!p.available : true, 'Available', 'Sold out');
+        setSwitch('pf-visible', p ? !!p.visible : true, 'Show on the shop', 'Hidden from the shop');
+        $('prod-view').hidden = true;
+        $('prod-form-view').hidden = false;
+      }
+      function closeProductForm() {
+        $('prod-form-view').hidden = true;
+        $('prod-view').hidden = false;
+      }
+
+      async function saveProduct() {
+        const button = $('pf-save');
+        const name = $('pf-name').value.trim();
+        const catChoice = $('pf-category').value;
+        const category = catChoice === '__new' ? $('pf-newcat').value.trim() : catChoice;
+        const price = Number(String($('pf-price').value).replace(/[\u20A6,\s]/g, ''));
+        if (!name) { setStatus('Enter a product name.', 'err'); return; }
+        if (!category) { setStatus('Enter a category.', 'err'); return; }
+        if (!Number.isInteger(price) || price < 1) { setStatus('Enter the price as a whole number of naira.', 'err'); return; }
+        const payload = {
+          name, category,
+          detail: $('pf-detail').value.trim(),
+          price,
+          image: $('pf-image').value.trim(),
+          alt: $('pf-alt').value.trim(),
+          available: switchOn('pf-available'),
+          visible: switchOn('pf-visible')
+        };
+        button.disabled = true;
+        try {
+          let data;
+          if (editingId) {
+            payload.id = editingId;
+            data = await productFetch('PATCH', payload);
+            const i = products.findIndex(x => x.id === editingId);
+            if (i >= 0) products[i] = data.product; else products.push(data.product);
+          } else {
+            data = await productFetch('POST', payload);
+            products.push(data.product);
+          }
+          products.sort((a, b) => (a.sort_order - b.sort_order) || String(a.name).localeCompare(String(b.name)));
+          renderProducts();
+          closeProductForm();
+          setStatus('Saved ' + data.product.name + '.', 'ok');
+        } catch (error) {
+          setStatus(error.message, 'err');
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      on('prod-add', 'click', () => openProductForm(null));
+      on('pf-back', 'click', closeProductForm);
+      on('pf-save', 'click', saveProduct);
+      on('pf-available', 'click', () => setSwitch('pf-available', !switchOn('pf-available'), 'Available', 'Sold out'));
+      on('pf-visible', 'click', () => setSwitch('pf-visible', !switchOn('pf-visible'), 'Show on the shop', 'Hidden from the shop'));
+      on('pf-category', 'change', () => { $('pf-newcat-wrap').hidden = $('pf-category').value !== '__new'; });
+      on('prod-chips', 'click', event => {
+        const b = event.target.closest('[data-pc]');
+        if (!b) return;
+        prodFilter = b.dataset.pc;
+        renderProducts();
+      });
+      on('prod-list', 'click', event => {
+        const b = event.target.closest('[data-act]');
+        if (!b) return;
+        if (b.dataset.act === 'toggle') toggleAvailability(b.dataset.id);
+        if (b.dataset.act === 'edit') {
+          const p = products.find(x => x.id === b.dataset.id);
+          if (p) openProductForm(p);
         }
       });
 
