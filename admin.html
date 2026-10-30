@@ -394,6 +394,9 @@
           <label>Pack details
             <input id="pf-detail" maxlength="200" autocomplete="off" placeholder="For example: 245 mm · 10 pieces per pack">
           </label>
+          <label>Short description
+            <textarea id="pf-description" maxlength="300" rows="3" placeholder="One or two sentences shown on the shop"></textarea>
+          </label>
           <label>Price (₦)
             <input id="pf-price" inputmode="numeric" autocomplete="off" placeholder="2500">
           </label>
@@ -1156,6 +1159,7 @@
         $('pf-name').value = p ? p.name : '';
         fillCategorySelect(p ? catOf(p) : (prodFilter !== 'all' ? prodFilter : 'General'));
         $('pf-detail').value = p ? (p.detail || '') : '';
+        $('pf-description').value = p ? (p.description || '') : '';
         $('pf-price').value = p ? String(p.price) : '';
         $('pf-image').value = p ? (p.image || '') : '';
         $('pf-alt').value = p ? (p.alt || '') : '';
@@ -1181,6 +1185,7 @@
         const payload = {
           name, category,
           detail: $('pf-detail').value.trim(),
+          description: $('pf-description').value.trim(),
           price,
           image: $('pf-image').value.trim(),
           alt: $('pf-alt').value.trim(),
