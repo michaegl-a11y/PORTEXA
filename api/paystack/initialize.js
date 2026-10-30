@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { supabaseAdmin, getUserFromRequest, CATALOG, jsonError } = require('../_lib');
+const { supabaseAdmin, getUserFromRequest, jsonError } = require('../_lib');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -16,21 +16,44 @@ module.exports = async function handler(req, res) {
       return jsonError(res, 400, 'Enter a valid email address.');
     }
     if (!items.length || items.length > 30) return jsonError(res, 400, 'Your order is empty or too large.');
+    // Prices always come from the products table on the server, never from the browser.
+    const db = supabaseAdmin();
+    for (const item of items) {
+      const qty = Number(item && item.quantity);
+      if (!item || typeof item.id !== 'string' || !/^[a-z0-9-]{1,60}$/.test(item.id) || !Number.isInteger(qty) || qty < 1 || qty > 99) {
+        return jsonError(res, 400, 'An item in your order is invalid.');
+      }
+    }
+    const wantedIds = Array.from(new Set(items.map((item) => item.id)));
+    const { data: productRows, error: productError } = await db
+      .from('products')
+      .select('id,name,detail,price,available,visible')
+      .in('id', wantedIds);
+    if (productError) {
+      console.error('Product lookup failed:', productError.code, productError.message);
+      return jsonError(res, 500, 'We could not check product prices. Please try again.');
+    }
+    const byId = new Map((productRows || []).map((row) => [row.id, row]));
     let subtotal = 0;
     const verifiedItems = [];
     for (const item of items) {
-      const product = CATALOG[item.id];
+      const product = byId.get(item.id);
       const qty = Number(item.quantity);
-      if (!product || !Number.isInteger(qty) || qty < 1 || qty > 99) {
-        return jsonError(res, 400, 'An item in your order is invalid.');
+      if (!product || !product.visible) {
+        return jsonError(res, 400, 'An item in your order is no longer available. Please check your cart.');
       }
-      if (product.price === null) return jsonError(res, 400, `${product.name} needs a confirmed quote before online payment.`);
-      subtotal += product.price * qty;
-      verifiedItems.push({ id: item.id, name: product.name, detail: product.detail, unit_price: product.price, quantity: qty, line_total: product.price * qty });
+      if (!product.available) {
+        return jsonError(res, 400, `${product.name} is currently sold out. Please remove it from your cart.`);
+      }
+      const price = Number(product.price);
+      if (!Number.isInteger(price) || price < 1) {
+        return jsonError(res, 400, `${product.name} cannot be ordered online right now.`);
+      }
+      subtotal += price * qty;
+      verifiedItems.push({ id: item.id, name: product.name, detail: product.detail, unit_price: price, quantity: qty, line_total: price * qty });
     }
     if (subtotal < 100) return jsonError(res, 400, 'The order total is invalid.');
     const user = await getUserFromRequest(req);
-    const db = supabaseAdmin();
     const reference = 'PORTEXA-' + crypto.randomBytes(12).toString('hex');
     const { data: order, error: insertError } = await db.from('orders').insert({
       user_id: user ? user.id : null,
