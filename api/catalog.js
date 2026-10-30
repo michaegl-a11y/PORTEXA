@@ -1,6 +1,6 @@
 const { supabaseAdmin, getUserFromRequest, isAdmin, jsonError } = require('./_lib');
 
-const COLUMNS = 'id,name,category,detail,price,image,alt,available,visible,sort_order,created_at,updated_at';
+const COLUMNS = 'id,name,category,detail,description,price,image,alt,available,visible,sort_order,created_at,updated_at';
 
 function toBool(v) {
   if (v === true || v === 'true') return true;
@@ -25,6 +25,11 @@ function clean(body, isNew) {
     const detail = String(body.detail == null ? '' : body.detail).trim();
     if (detail.length > 200) return { error: 'Pack details must be 200 characters or fewer.' };
     out.detail = detail;
+  }
+  if (body.description !== undefined || isNew) {
+    const description = String(body.description == null ? '' : body.description).trim();
+    if (description.length > 300) return { error: 'Description must be 300 characters or fewer.' };
+    out.description = description;
   }
   if (isNew || body.price !== undefined) {
     const price = Number(body.price);
@@ -81,7 +86,7 @@ module.exports = async function handler(req, res) {
       const pub = supabaseAdmin();
       const { data, error } = await pub
         .from('products')
-        .select('id,name,category,detail,price,image,alt,available')
+        .select('id,name,category,detail,description,price,image,alt,available')
         .eq('visible', true)
         .order('sort_order', { ascending: true })
         .order('name', { ascending: true });
